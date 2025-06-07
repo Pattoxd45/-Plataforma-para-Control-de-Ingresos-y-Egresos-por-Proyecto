@@ -1,0 +1,78 @@
+\section{Arquitectura e Infraestructura}
+\subsection{Diagrama General}
+
+\subsection{Componentes Principales}
+\subsubsection{Frontend}
+\begin{itemize}
+    \item \textbf{Tecnologías}: React.js con TypeScript
+    \item \textbf{Bibliotecas principales}:
+    \begin{itemize}
+        \item Chart.js para visualización de datos financieros
+        \item React Hook Form para manejo de formularios
+        \item Axios para comunicación con el backend
+    \end{itemize}
+    \item \textbf{Características}:
+    \begin{itemize}
+        \item Interfaz responsive con Tailwind CSS
+        \item Validaciones en tiempo real
+        \item Actualización automática de datos mediante suscripciones
+    \end{itemize}
+\end{itemize}
+
+\subsubsection{Backend y Base de Datos}
+\begin{itemize}
+    \item \textbf{Plataforma}: SupaBase (alternativa open-source a Firebase)
+    \item \textbf{Componentes}:
+    \begin{itemize}
+        \item Autenticación con JWT y OAuth
+        \item Base de datos PostgreSQL con Row Level Security (RLS)
+        \item Almacenamiento para documentos adjuntos
+    \end{itemize}
+    \item \textbf{Estructura de datos principal}:
+    \begin{itemize}
+        \item Tabla \texttt{users} para gestión de cuentas
+        \item Tabla \texttt{projects} para seguimiento de proyectos
+        \item Tabla \texttt{transactions} para registros financieros
+        \item Tabla \texttt{audit\_log} para trazabilidad
+    \end{itemize}
+\end{itemize}
+
+\subsection{Flujo de Datos}
+\begin{enumerate}
+    \item El usuario interactúa con la interfaz React
+    \item Las acciones disparan llamadas a la API de SupaBase
+    \item SupaBase procesa las peticiones aplicando políticas RLS
+    \item Los datos se almacenan/recuperan de PostgreSQL
+    \item Los cambios se notifican al frontend en tiempo real
+    \item La interfaz se actualiza reflejando los cambios
+\end{enumerate}
+
+\subsection{Security by Design}
+\begin{itemize}
+    \item \textbf{Autenticación}:
+    \begin{itemize}
+        \item Tokens JWT con expiración corta
+        \item Verificación de email para nuevos registros
+        \item Hasheo de contraseñas con algoritmos modernos
+    \end{itemize}
+    \item \textbf{Autorización}:
+    \begin{itemize}
+        \item Row Level Security para acceso a datos
+        \item Políticas granulares por tipo de recurso
+        \item Validación de ownership antes de operaciones
+    \end{itemize}
+    \item \textbf{Protección de datos}:
+    \begin{itemize}
+        \item Soft-delete para recuperación de registros
+        \item Auditoría completa de cambios
+        \item Encriptación de datos sensibles
+    \end{itemize}
+\end{itemize}
+
+\subsection{Escalabilidad}
+\begin{itemize}
+    \item Arquitectura serverless que escala automáticamente
+    \item Base de datos optimizada con índices para consultas frecuentes
+    \item Caché implementado para reportes complejos
+    \item Diseño preparado para migración a microservicios si crece la demanda
+\end{itemize}
