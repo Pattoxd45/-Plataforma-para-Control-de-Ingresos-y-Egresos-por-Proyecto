@@ -1,0 +1,28 @@
+\section{Uso de las Funcionalidades}
+
+\subsection{Gestión de Usuarios}
+\begin{itemize}
+    \item El usuario accede al formulario de registro e ingresa su correo y contraseña. Un correo de verificación es enviado automáticamente.
+    \item Para iniciar sesión, el usuario proporciona sus credenciales previamente registradas. Si son válidas, se establece una sesión persistente.
+    \item En caso de olvidar la contraseña, el usuario puede solicitar un enlace de recuperación, el cual expirará después de un tiempo definido.
+    \item Desde su perfil, el usuario puede editar su información básica, como nombre o imagen, con cambios guardados automáticamente en SupaBase.
+\end{itemize}
+
+\subsection{Gestión de Ingresos y Egresos}
+\begin{itemize}
+    \item Desde el panel principal, el usuario puede registrar nuevas transacciones, completando los campos obligatorios como monto, categoría y fecha.
+    \item Las transacciones pueden estar vinculadas a un proyecto específico mediante su \texttt{id\_proyecto}.
+    \item Las validaciones se realizan en tiempo real: si hay datos inválidos, el sistema los detecta antes de enviarlos a la base de datos.
+    \item Para editar o eliminar una transacción, el usuario accede a su historial y selecciona la acción deseada. Las operaciones están protegidas por políticas RLS.
+    \item En lugar de eliminar físicamente los datos, se aplica un \textit{soft delete} cambiando el valor de \texttt{deleted\_at}. Esto permite recuperar registros si es necesario.
+    \item Cada modificación queda registrada en la tabla \texttt{transacciones\_log}, lo cual facilita auditorías y revisiones posteriores.
+    \item El sistema permite aplicar filtros avanzados para visualizar datos según fechas, categorías, montos o proyectos.
+    \item Los resultados se muestran en tablas interactivas y gráficos resumidos, con actualizaciones en tiempo real cuando hay nuevos cambios.
+\end{itemize}
+
+\subsection{Reportes y Finanzas}
+\begin{itemize}
+    \item Desde el menú de reportes, el usuario puede generar balances por periodos determinados (diario, mensual, anual).
+    \item Los resultados pueden exportarse en formatos como Excel o PDF para análisis externo o presentación.
+    \item Los gráficos financieros permiten una visualización rápida del estado general de los ingresos y egresos por proyecto.
+\end{itemize}
