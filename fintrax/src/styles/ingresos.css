@@ -1,0 +1,32 @@
+.ingresos-container {
+  padding: 2rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f9f9f9;
+  min-height: 80vh;
+}
+
+.ingresos-container h1 {
+  font-size: 2rem;
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+}
+
+.ingresos-subtitulo {
+  font-size: 1.1rem;
+  color: #7f8c8d;
+  margin-bottom: 2rem;
+}
+
+.ingresos-contenido ul {
+  list-style-type: disc;
+  margin-left: 2rem;
+  color: #34495e;
+  font-size: 1rem;
+  margin-bottom: 2rem;
+}
+
+.ingresos-footer {
+  color: #27ae60;
+  font-weight: bold;
+  font-size: 1rem;
+}
