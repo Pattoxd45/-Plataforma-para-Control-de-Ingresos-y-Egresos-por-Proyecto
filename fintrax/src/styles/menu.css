@@ -1,0 +1,51 @@
+.menu {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #2c3e50;
+  padding: 1rem 2rem;
+  color: white;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  cursor: pointer;
+}
+
+.menu-logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.menu-links {
+  display: flex;
+  gap: 1.5rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.menu-links li {
+  font-size: 1rem;
+  transition: color 0.3s;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  display: inline-block;
+}
+
+.menu-links li:hover {
+  color: #f1c40f;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 5px;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .menu {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .menu-links {
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 1rem;
+  }
+}
