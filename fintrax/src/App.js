@@ -7,6 +7,7 @@ import Egresos from './components/egresos';
 import Reportes from './components/reportes';
 import Perfil from './components/perfil';
 import Login from './components/login';
+import Proyectos from './components/proyectos';
 
 function App() {
   return (
@@ -15,7 +16,8 @@ function App() {
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/Inicio" element={<Inicio />} />
-        <Route path="/ingresos" element={<Ingresos />} />
+        <Route path="/Proyectos" element={<Proyectos />} />
+        <Route path="/Ingresos" element={<Ingresos />} />
         <Route path="/Egresos" element={<Egresos />} />
         <Route path="/Reportes" element={<Reportes />} />
         <Route path="/Perfil" element={<Perfil />} />

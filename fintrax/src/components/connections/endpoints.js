@@ -14,7 +14,11 @@ export const endpoints = {
     // Retorna una lista de todos los proyectos disponibles en la tabla `projects`.
     getAll: async () => {
       const { data, error } = await supabase.from('projects').select('*');
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching projects:', error);
+        throw error;
+      }
+      console.log('Fetched projects:', data);
       return data;
     },
 
