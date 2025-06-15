@@ -1,4 +1,5 @@
-INSERT INTO fintrax.projects (user_id, name, description, budget, status)
+-- Insertar un proyecto de prueba en la tabla `projects`
+INSERT INTO public.projects (user_id, name, description, budget, status)
 VALUES (
     '0a607a0d-ea6e-46d7-9589-14d16795149e', -- Reemplaza con el ID del usuario creado
     'Proyecto de prueba',
@@ -7,11 +8,13 @@ VALUES (
     'activo'
 );
 
-SELECT * FROM fintrax.projects WHERE user_id = '0a607a0d-ea6e-46d7-9589-14d16795149e';
+-- Consultar el proyecto recién creado
+SELECT * FROM public.projects WHERE user_id = '0a607a0d-ea6e-46d7-9589-14d16795149e';
 
-INSERT INTO fintrax.transactions (project_id, amount, date, description, category, type)
+-- Insertar una transacción de prueba en la tabla `transactions`
+INSERT INTO public.transactions (project_id, amount, date, description, category, type)
 VALUES (
-    '82c185f3-b336-421f-b2d2-21de7504c82a', -- Reemplaza con el ID del proyecto creado
+    '90c037f1-cc79-47a7-87b9-a8fbd010b1ca', -- Reemplaza con el ID del proyecto creado
     500, -- Monto de la transacción
     NOW(), -- Fecha actual
     'Transacción de prueba',
@@ -19,15 +22,17 @@ VALUES (
     'ingreso'
 );
 
-INSERT INTO fintrax.reports (user_id, project_id, report_type, status, filters_used, data)
+-- Insertar un reporte de prueba en la tabla `reports`
+INSERT INTO public.reports (user_id, project_id, report_type, status, filters_used, data)
 VALUES 
     (
-    '0a607a0d-ea6e-46d7-9589-14d16795149e', 
-    '82c185f3-b336-421f-b2d2-21de7504c82a', 
+    '0a607a0d-ea6e-46d7-9589-14d16795149e', -- Reemplaza con el ID del usuario creado
+    '90c037f1-cc79-47a7-87b9-a8fbd010b1ca', -- Reemplaza con el ID del proyecto creado
     'balance', 
     'generado', 
     '{"start_date": "2025-01-01", "end_date": "2025-06-01"}', 
     '{"balance": 200}'
     );
 
-
+-- Consultar el reporte recién creado
+SELECT * FROM public.reports WHERE user_id = '0a607a0d-ea6e-46d7-9589-14d16795149e';
