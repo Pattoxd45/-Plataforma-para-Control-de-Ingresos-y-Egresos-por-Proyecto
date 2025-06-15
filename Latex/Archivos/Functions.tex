@@ -3,23 +3,24 @@
 \begin{itemize}
     \item \textbf{Autenticación} mediante SupaBase Auth:
     \begin{itemize}
-        \item Registro con verificación de email
-        \item Inicio de sesión con email/contraseña
-        \item Cierre de sesión con invalidación de tokens JWT
-        \item Sesiones persistentes seguras
+        \item Registro con verificación de email.
+        \item Inicio de sesión con email/contraseña.
+        \item Cierre de sesión con invalidación de tokens JWT.
+        \item Sesiones persistentes seguras.
     \end{itemize}
     
     \item \textbf{Recuperación de contraseña}:
     \begin{itemize}
-        \item Flujo automatizado con SupaBase
-        \item Enlaces de recuperación con expiración
-        \item Validación de seguridad en el frontend
+        \item Flujo automatizado con SupaBase.
+        \item Enlaces de recuperación con expiración.
+        \item Validación de seguridad en el frontend.
     \end{itemize}
     
     \item \textbf{Perfil de usuario}:
     \begin{itemize}
-        \item Almacenamiento en tabla \texttt{auth.users} de SupaBase
-        \item Edición segura de información básica
+        \item Almacenamiento en tabla \texttt{auth.users} de SupaBase.
+        \item Edición segura de información básica.
+        \item Registro de último inicio de sesión mediante triggers.
     \end{itemize}
 \end{itemize}
 
@@ -27,87 +28,88 @@
 \begin{itemize}
     \item \textbf{Registro de transacciones}:
     \begin{itemize}
-        \item Implementado mediante tablas \texttt{transacciones} en SupaBase
-        \item Campos obligatorios: monto, fecha, descripción, categoría, tipo (ingreso/egreso)
-        \item Relación con proyectos mediante \texttt{id\_proyecto}
-        \item Validación en tiempo real con SupaBase RPC
+        \item Implementado mediante tablas \texttt{transactions} en SupaBase.
+        \item Campos obligatorios: monto, fecha, descripción, categoría, tipo (ingreso/egreso).
+        \item Relación con proyectos mediante \texttt{project\_id}.
+        \item Validación de presupuesto mediante triggers.
     \end{itemize}
     
-\item \textbf{Edición y eliminación}:
-\begin{itemize}
-    \item \textbf{Protección de datos}:
+    \item \textbf{Edición y eliminación}:
     \begin{itemize}
-        \item Implementación de Row Level Security (RLS) para restringir acceso
-        \item Políticas personalizadas para UPDATE/DELETE en SupaBase
-    \end{itemize}
-    
-\item \textbf{Soft Delete}:
-\begin{itemize}
-    \item \textbf{Implementación básica}:
-    \begin{itemize}
-        \item Campo \texttt{deleted\_at} (TIMESTAMPTZ) en tabla \texttt{transacciones}
-        \item Valor por defecto NULL (registro activo)
-        \item Índice parcial para optimizar queries: \texttt{WHERE deleted\_at IS NULL}
-    \end{itemize}
-    
-    \item \textbf{Eliminación por errores}:
-    \begin{itemize}
-        \item Columna adicional \texttt{deletion\_reason} (TEXT) con valores:
-        \item \quad 'error' - Registro incorrecto
-        \item \quad 'normal' - Eliminación estándar
-        \item \quad 'duplicado' - Registro repetido
-    \end{itemize}
-\end{itemize}
-    \item \textbf{Histórico de cambios}:
-    \begin{itemize}
-        \item Tabla \texttt{transacciones\_log} para auditoría
-        \item Triggers en SupaBase que registran:
+        \item \textbf{Protección de datos}:
         \begin{itemize}
-            \item Usuario que realizó el cambio
-            \item Fecha y hora exacta
-            \item Valores anteriores (para operaciones UPDATE/DELETE)
+            \item Implementación de Row Level Security (RLS) para restringir acceso.
+            \item Políticas personalizadas para UPDATE/DELETE en SupaBase.
+        \end{itemize}
+        
+        \item \textbf{Soft Delete}:
+        \begin{itemize}
+            \item Campo \texttt{deleted\_at} (TIMESTAMPTZ) en tabla \texttt{transactions}.
+            \item Valor por defecto NULL (registro activo).
+            \item Índice parcial para optimizar queries: \texttt{WHERE deleted\_at IS NULL}.
+            \item Columna adicional \texttt{deletion\_reason} (TEXT) para registrar motivo de eliminación.
+        \end{itemize}
+        
+        \item \textbf{Histórico de cambios}:
+        \begin{itemize}
+            \item Tabla \texttt{transactions\_log} para auditoría.
+            \item Triggers en SupaBase que registran:
+            \begin{itemize}
+                \item Usuario que realizó el cambio.
+                \item Fecha y hora exacta.
+                \item Valores anteriores y nuevos (para operaciones UPDATE/DELETE).
+            \end{itemize}
         \end{itemize}
     \end{itemize}
-    
-    \item \textbf{Validaciones}:
-    \begin{itemize}
-        \item Confirmación en UI para operaciones críticas
-        \item Límite de tiempo para reversión de operaciones
-    \end{itemize}
-\end{itemize}
     
     \item \textbf{Filtrado avanzado}:
     \begin{itemize}
-        \item Uso de SupaBase \texttt{select()} con filtros dinámicos
+        \item Uso de funciones RPC para filtros dinámicos.
         \item Posibilidad de filtrar por:
         \begin{itemize}
-            \item Rango de fechas
-            \item Monto mínimo/máximo
-            \item Categorías específicas
-            \item Proyecto asociado
+            \item Rango de fechas.
+            \item Monto mínimo/máximo.
+            \item Categorías específicas.
+            \item Proyecto asociado.
         \end{itemize}
-        \item Paginación para resultados extensos
+        \item Paginación para resultados extensos.
     \end{itemize}
     
     \item \textbf{Visualización}:
     \begin{itemize}
-        \item Tablas interactivas con ordenamiento por columnas
-        \item Resúmenes gráficos usando datos de SupaBase
-        \item Vista consolidada por periodos (diario, semanal, mensual)
-        \item Sincronización en tiempo real con SupaBase subscriptions
+        \item Tablas interactivas con ordenamiento por columnas.
+        \item Resúmenes gráficos usando datos de SupaBase.
+        \item Vista consolidada por periodos (diario, semanal, mensual).
+        \item Sincronización en tiempo real con SupaBase subscriptions.
     \end{itemize}
     
     \item \textbf{Validaciones}:
     \begin{itemize}
-        \item Restricción de tipos de datos a nivel de base de datos
-        \item Verificación de consistencia financiera
-        \item Prevención de duplicados
+        \item Restricción de tipos de datos a nivel de base de datos.
+        \item Verificación de consistencia financiera.
+        \item Prevención de duplicados mediante triggers.
     \end{itemize}
 \end{itemize}
 
 \subsection{Reportes y Finanzas}
 \begin{itemize}
-    \item Generación de reportes financieros
-    \item Exportación a formatos estándar (Excel/PDF)
-    \item Visualización de balances y gráficos
+    \item Generación de reportes financieros mediante funciones RPC.
+    \item Exportación a formatos estándar (Excel/PDF).
+    \item Visualización de balances y gráficos.
+    \item Registro de cambios en reportes mediante triggers.
+\end{itemize}
+
+\subsection{Gestión de Notificaciones}
+\begin{itemize}
+    \item Registro de notificaciones en tabla \texttt{notifications}.
+    \item Función RPC para marcar notificaciones como leídas.
+    \item Trigger para marcar notificaciones expiradas automáticamente.
+    \item Vista para agrupar notificaciones por prioridad.
+\end{itemize}
+
+\subsection{Gestión de Adjuntos}
+\begin{itemize}
+    \item Almacenamiento de archivos relacionados con proyectos y transacciones.
+    \item Validación de formato de archivos mediante triggers.
+    \item Función RPC para obtener adjuntos de un proyecto.
 \end{itemize}
