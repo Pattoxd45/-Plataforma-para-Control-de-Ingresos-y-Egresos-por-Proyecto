@@ -35,6 +35,17 @@
   background-color: rgba(255, 255, 255, 0.1);
   border-radius: 5px;
 }
+.logout-button {
+  color: #e74c3c;
+  font-weight: bold;
+  transition: color 0.3s, background-color 0.3s;
+}
+
+.logout-button:hover {
+  color: white;
+  background-color: #e74c3c;
+  border-radius: 5px;
+}
 
 /* Responsive */
 @media (max-width: 600px) {

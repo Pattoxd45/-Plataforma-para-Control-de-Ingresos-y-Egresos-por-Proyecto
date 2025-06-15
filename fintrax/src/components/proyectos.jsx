@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { supabase, endpoints } from './connections/endpoints'; // Importar los endpoints
 import '../styles/proyectos.css';
+import useAuthCheck from './hooks/useAuthCheck'; // Importar el hook de verificación de sesión
 
 function Proyectos() {
   const [userId, setUserId] = useState(null);
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
+
+
 
   // Obtener la ID del usuario autenticado
   const fetchUserId = async () => {
@@ -25,9 +28,7 @@ function Proyectos() {
   // Obtener los proyectos asociados al usuario usando el endpoint
   const fetchProjects = async (userId) => {
     try {
-      console.log(`Fetching projects for userId: ${userId}`); // Imprimir el userId
-      const data = await endpoints.projects.getAll(); // Usar el endpoint para obtener proyectos
-      console.log('Query result:', data); // Imprimir el resultado de la consulta
+      const data = await endpoints.projects.getById(userId); // Usar el endpoint para obtener proyectos
       const userProjects = data.filter((project) => project.user_id === userId); // Filtrar por user_id
       setProjects(userProjects);
     } catch (error) {
@@ -51,6 +52,8 @@ function Proyectos() {
       fetchProjects(userId);
     }
   }, [userId]);
+
+  useAuthCheck(); // Verificar sesión
 
   return (
     <div className="proyectos-container">

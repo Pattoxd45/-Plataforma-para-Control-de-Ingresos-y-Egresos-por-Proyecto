@@ -25,8 +25,11 @@ export const endpoints = {
     // Obtener un proyecto por su ID
     // Retorna los detalles de un proyecto específico basado en su ID.
     getById: async (id) => {
-      const { data, error } = await supabase.from('projects').select('*').eq('id', id).single();
-      if (error) throw error;
+      const { data, error } = await supabase.from('projects').select('*').eq('user_id', id);
+      if (error) {
+        console.error('Error fetching projects:', error);
+        throw error;
+      }
       return data;
     },
 

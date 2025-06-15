@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import Menu from './components/menu';
 import Inicio from './components/inicio';
 import Ingresos from './components/ingresos';
@@ -9,10 +9,13 @@ import Perfil from './components/perfil';
 import Login from './components/login';
 import Proyectos from './components/proyectos';
 
-function App() {
+function AppContent() {
+  const location = useLocation();
+
   return (
-    <Router>
-      <Menu />
+    <>
+      {/* Mostrar el menú solo si no estamos en la ruta de login */}
+      {location.pathname !== '/' && <Menu />}
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/Inicio" element={<Inicio />} />
@@ -22,6 +25,14 @@ function App() {
         <Route path="/Reportes" element={<Reportes />} />
         <Route path="/Perfil" element={<Perfil />} />
       </Routes>
+    </>
+  );
+}
+
+function App() {
+  return (
+    <Router>
+      <AppContent />
     </Router>
   );
 }
