@@ -30,3 +30,54 @@
   font-weight: bold;
   font-size: 1rem;
 }
+
+/* CONTENEDOR DE LA TABLA */
+.tabla-ingresos {
+  overflow-x: auto;
+  margin-top: 2rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: white;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+/* ESTILOS PARA LA TABLA */
+.tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+/* ENCABEZADOS */
+.tabla th {
+  background-color: #2c3e50;
+  color: white;
+  padding: 0.75rem;
+  text-align: left;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+/* CELDAS */
+.tabla td {
+  padding: 0.75rem;
+  border-top: 1px solid #eee;
+}
+
+/* FILAS ALTERNADAS */
+.tabla tr:nth-child(even) {
+  background-color: #f4f4f4;
+}
+
+/* FILA AL PASAR EL MOUSE */
+.tabla tr:hover {
+  background-color: #ecf0f1;
+}
+
+/* MENSAJE DE CARGA */
+.ingresos-cargando {
+  color: #7f8c8d;
+  font-style: italic;
+  margin-top: 1rem;
+}
