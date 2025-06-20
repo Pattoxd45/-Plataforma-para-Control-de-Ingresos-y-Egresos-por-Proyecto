@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import '../styles/reportes.css';
+import { FaFileExcel, FaPlus, FaTrash, FaEdit, FaChartBar } from 'react-icons/fa';
 
 const Reportes = () => {
   const [reportes, setReportes] = useState([
@@ -73,103 +74,143 @@ const Reportes = () => {
     }
   };
 
+  const eliminarReporte = (id) => {
+    setReportes(reportes.filter(reporte => reporte.id !== id));
+  };
+
   return (
     <div className="reportes-container">
-      <h1>Reportes Financieros</h1>
+      <div className="reportes-header">
+        <h1 className="reportes-titulo">Reportes Financieros</h1>
+        <p className="reportes-subtitulo">Personalización de reportes por país y empresa</p>
+      </div>
       
-      <section className="seccion-reportes">
-        <h2>Personalización de reportes por país</h2>
-        
-        <div className="botones-reportes">
+      <section className="reportes-seccion">
+        <div className="reportes-acciones">
           <button 
-            className="boton-gasto" 
+            className="reportes-boton reportes-boton-primario"
             onClick={() => setMostrarFormulario(!mostrarFormulario)}
           >
-            {mostrarFormulario ? 'Cancelar' : 'Nuevo Reporte'}
+            <FaPlus /> {mostrarFormulario ? 'Cancelar' : 'Nuevo Reporte'}
+          </button>
+          <button className="reportes-boton reportes-boton-secundario">
+            <FaFileExcel /> Exportar a Excel
           </button>
         </div>
 
         {mostrarFormulario && (
-          <div className="formulario-reporte">
-            <h3>Crear Nuevo Reporte</h3>
-            <div>
+          <div className="reportes-formulario">
+            <h3 className="reportes-formulario-titulo">
+              <FaPlus /> Crear Nuevo Reporte
+            </h3>
+            <div className="reportes-formulario-grupo">
               <label>Firma:</label>
               <input
                 type="text"
                 name="firma"
                 value={nuevoReporte.firma}
                 onChange={handleInputChange}
+                placeholder="Nombre de la firma"
               />
             </div>
-            <div>
+            <div className="reportes-formulario-grupo">
               <label>Email:</label>
               <input
                 type="email"
                 name="email"
                 value={nuevoReporte.email}
                 onChange={handleInputChange}
+                placeholder="Correo electrónico"
               />
             </div>
-            <div>
+            <div className="reportes-formulario-grupo">
               <label>Sitio Web:</label>
               <input
                 type="text"
                 name="sitioWeb"
                 value={nuevoReporte.sitioWeb}
                 onChange={handleInputChange}
+                placeholder="URL del sitio web"
               />
             </div>
-            <button onClick={agregarReporte}>Guardar Reporte</button>
+            <button 
+              className="reportes-boton reportes-boton-primario"
+              onClick={agregarReporte}
+            >
+              Guardar Reporte
+            </button>
           </div>
         )}
 
         {reportes.map((reporte, index) => (
-          <div key={reporte.id} className="reporte-fellow">
-            <p><strong>Reporte {reporte.id}</strong></p>
-            <p>Reporte correspondiente a:</p>
-            <p><strong>Firma:</strong> "{reporte.firma}"</p>
-            <p><strong>Email:</strong> {reporte.email}</p>
-            <p><strong>Sitio web:</strong> {reporte.sitioWeb}</p>
+          <div key={reporte.id} className="reportes-tarjeta">
+            <div className="reportes-cabecera">
+              <h3 className="reportes-encabezado">
+                Reporte #{reporte.id} - {reporte.firma}
+              </h3>
+              <button 
+                className="reportes-boton-icono"
+                onClick={() => eliminarReporte(reporte.id)}
+              >
+                <FaTrash />
+              </button>
+            </div>
+            
+            <div className="reportes-info">
+              <p><strong>Correo electrónico:</strong> {reporte.email}</p>
+              <p><strong>Sitio web:</strong> {reporte.sitioWeb}</p>
+            </div>
 
-            <div className="formulario-gasto">
-              <h4>Agregar nuevo gasto</h4>
-              <div>
-                <label>Concepto:</label>
-                <input
-                  type="text"
-                  name="concepto"
-                  value={nuevoGasto.concepto}
-                  onChange={handleGastoChange}
-                />
+            <div className="reportes-formulario-gasto">
+              <h4 className="reportes-subtitulo">
+                <FaPlus /> Agregar nuevo gasto
+              </h4>
+              <div className="reportes-formulario-fila">
+                <div className="reportes-formulario-grupo">
+                  <label>Concepto:</label>
+                  <input
+                    type="text"
+                    name="concepto"
+                    value={nuevoGasto.concepto}
+                    onChange={handleGastoChange}
+                    placeholder="Descripción del gasto"
+                  />
+                </div>
+                <div className="reportes-formulario-grupo">
+                  <label>Monto 1:</label>
+                  <input
+                    type="number"
+                    name="monto1"
+                    value={nuevoGasto.monto1}
+                    onChange={handleGastoChange}
+                    placeholder="Monto inicial"
+                  />
+                </div>
               </div>
-              <div>
-                <label>Monto 1:</label>
-                <input
-                  type="number"
-                  name="monto1"
-                  value={nuevoGasto.monto1}
-                  onChange={handleGastoChange}
-                />
-              </div>
-              <div>
-                <label>Monto 2:</label>
-                <input
-                  type="number"
-                  name="monto2"
-                  value={nuevoGasto.monto2}
-                  onChange={handleGastoChange}
-                />
-              </div>
-              <div>
-                <label>Balance:</label>
-                <input
-                  type="number"
-                  name="balance"
-                  value={nuevoGasto.balance}
-                  onChange={handleGastoChange}
-                />
+              <div className="reportes-formulario-fila">
+                <div className="reportes-formulario-grupo">
+                  <label>Monto 2:</label>
+                  <input
+                    type="number"
+                    name="monto2"
+                    value={nuevoGasto.monto2}
+                    onChange={handleGastoChange}
+                    placeholder="Monto secundario"
+                  />
+                </div>
+                <div className="reportes-formulario-grupo">
+                  <label>Balance:</label>
+                  <input
+                    type="number"
+                    name="balance"
+                    value={nuevoGasto.balance}
+                    onChange={handleGastoChange}
+                    placeholder="Balance resultante"
+                  />
+                </div>
               </div>
               <button 
+                className="reportes-boton reportes-boton-primario"
                 onClick={() => {
                   setReporteSeleccionado(index);
                   agregarGasto();
@@ -179,22 +220,20 @@ const Reportes = () => {
               </button>
             </div>
 
-            <hr className="separador" />
-
-            <div className="resultados">
-              <h3>Resultados</h3>
-              <ul>
-                <li>Oficina de mandatos generales:</li>
-              </ul>
-
-              <div className="tabla-reportes">
-                <table className="tabla-financiera">
+            <div className="reportes-resultados">
+              <h3 className="reportes-subtitulo">
+                <FaChartBar /> Resultados Financieros
+              </h3>
+              
+              <div className="reportes-tabla-contenedor">
+                <table className="reportes-tabla">
                   <thead>
                     <tr>
                       <th>Concepto</th>
-                      <th>Gastos</th>
-                      <th>Gastos</th>
+                      <th>Gastos (1)</th>
+                      <th>Gastos (2)</th>
                       <th>Balance</th>
+                      <th>Acciones</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -203,7 +242,17 @@ const Reportes = () => {
                         <td>{gasto.concepto}</td>
                         <td>${gasto.monto1.toLocaleString()}</td>
                         <td>${gasto.monto2.toLocaleString()}</td>
-                        <td>${gasto.balance.toLocaleString()}</td>
+                        <td className={
+                          gasto.balance > 0 ? 'reportes-balance-positivo' : 
+                          gasto.balance < 0 ? 'reportes-balance-negativo' : ''
+                        }>
+                          ${gasto.balance.toLocaleString()}
+                        </td>
+                        <td>
+                          <button className="reportes-boton-icono">
+                            <FaEdit />
+                          </button>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
