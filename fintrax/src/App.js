@@ -11,20 +11,22 @@ import About from './components/about';
 
 function App() {
   return (
-    
     <Router>
-      <Menu />
-      <Routes>
-        <Route path="/" element={<Inicio />} />
-        <Route path="/ingresos" element={<Ingresos />} />
-        <Route path="/" element={<Egresos />} />
-        <Route path="/" element={<Reportes />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/" element={<Perfil />} />
-      </Routes>
-      <Copyright />
+      <div className="app-container">
+        <Menu />
+        <main className="main-content">
+          <Routes>
+            <Route path="/" element={<Inicio />} />
+            <Route path="/ingresos" element={<Ingresos />} />
+            <Route path="/egresos" element={<Egresos />} />
+            <Route path="/reportes" element={<Reportes />} />
+            <Route path="/perfil" element={<Perfil />} />
+            <Route path="/about" element={<About />} />
+          </Routes>
+        </main>
+        <Copyright />
+      </div>
     </Router>
-    
   );
 }
 

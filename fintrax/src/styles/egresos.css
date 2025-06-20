@@ -1,0 +1,60 @@
+.egresos-container {
+  padding: 2rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f9f9f9;
+  min-height: 80vh;
+}
+
+.egresos-container h1 {
+  font-size: 2rem;
+  color: #2c3e50;
+  margin-bottom: 1.5rem;
+}
+
+.egresos-section {
+  background-color: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.egresos-section h2 {
+  font-size: 1.5rem;
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+}
+
+.egresos-section p {
+  color: #34495e;
+  margin-bottom: 1rem;
+}
+
+.egresos-nuevo h3,
+.egresos-funcionalidades h3 {
+  font-size: 1.2rem;
+  color: #2c3e50;
+  margin: 1rem 0 0.5rem 0;
+}
+
+.egresos-nuevo ul,
+.egresos-funcionalidades ul {
+  list-style-type: disc;
+  margin-left: 2rem;
+  color: #34495e;
+}
+
+.egresos-nuevo li,
+.egresos-funcionalidades li {
+  margin-bottom: 0.5rem;
+}
+
+.egresos-separador {
+  border: 0;
+  height: 1px;
+  background-color: #ddd;
+  margin: 1.5rem 0;
+}
+
+.egresos-funcionalidades p strong {
+  color: #2c3e50;
+}
