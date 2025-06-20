@@ -28,6 +28,7 @@ const Menu = () => {
         <li onClick={() => navigateAndClose('/ingresos')}>Ingresos</li>
         <li onClick={() => navigateAndClose('/egresos')}>Egresos</li>
         <li onClick={() => navigateAndClose('/reportes')}>Reportes</li>
+        <li onClick={() => navigateAndClose('/about')}>About</li>
         <li onClick={() => navigateAndClose('/perfil')}>Perfil</li>
       </ul>
     </nav>
