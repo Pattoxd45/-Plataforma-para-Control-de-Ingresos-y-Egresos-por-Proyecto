@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import '../styles/reportes.css';
-import { FaFileExcel, FaPlus, FaTrash, FaEdit, FaChartBar } from 'react-icons/fa';
 
 const Reportes = () => {
   const [reportes, setReportes] = useState([
@@ -91,17 +90,17 @@ const Reportes = () => {
             className="reportes-boton reportes-boton-primario"
             onClick={() => setMostrarFormulario(!mostrarFormulario)}
           >
-            <FaPlus /> {mostrarFormulario ? 'Cancelar' : 'Nuevo Reporte'}
+            {mostrarFormulario ? '✖ Cancelar' : '➕ Nuevo Reporte'}
           </button>
           <button className="reportes-boton reportes-boton-secundario">
-            <FaFileExcel /> Exportar a Excel
+            📊 Exportar a Excel
           </button>
         </div>
 
         {mostrarFormulario && (
           <div className="reportes-formulario">
             <h3 className="reportes-formulario-titulo">
-              <FaPlus /> Crear Nuevo Reporte
+              ➕ Crear Nuevo Reporte
             </h3>
             <div className="reportes-formulario-grupo">
               <label>Firma:</label>
@@ -152,7 +151,7 @@ const Reportes = () => {
                 className="reportes-boton-icono"
                 onClick={() => eliminarReporte(reporte.id)}
               >
-                <FaTrash />
+                🗑️
               </button>
             </div>
             
@@ -163,7 +162,7 @@ const Reportes = () => {
 
             <div className="reportes-formulario-gasto">
               <h4 className="reportes-subtitulo">
-                <FaPlus /> Agregar nuevo gasto
+                ➕ Agregar nuevo gasto
               </h4>
               <div className="reportes-formulario-fila">
                 <div className="reportes-formulario-grupo">
@@ -222,7 +221,7 @@ const Reportes = () => {
 
             <div className="reportes-resultados">
               <h3 className="reportes-subtitulo">
-                <FaChartBar /> Resultados Financieros
+                📈 Resultados Financieros
               </h3>
               
               <div className="reportes-tabla-contenedor">
@@ -250,7 +249,7 @@ const Reportes = () => {
                         </td>
                         <td>
                           <button className="reportes-boton-icono">
-                            <FaEdit />
+                            ✏️
                           </button>
                         </td>
                       </tr>
