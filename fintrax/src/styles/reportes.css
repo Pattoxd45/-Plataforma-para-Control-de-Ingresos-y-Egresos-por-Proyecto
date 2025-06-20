@@ -24,6 +24,10 @@
   margin-bottom: 1rem;
 }
 
+.reportes-fellow {
+  margin-bottom: 2rem;
+}
+
 .reportes-fellow p {
   color: #34495e;
   margin: 0.5rem 0;
@@ -83,7 +87,7 @@
 .reportes-botones {
   display: flex;
   gap: 1rem;
-  margin-top: 1rem;
+  margin: 1rem 0;
 }
 
 .reportes-boton {
@@ -98,4 +102,28 @@
 
 .reportes-boton:hover {
   background-color: #2980b9;
+}
+
+.formulario-reporte, .formulario-gasto {
+  background-color: #f8f9fa;
+  padding: 1rem;
+  border-radius: 5px;
+  margin: 1rem 0;
+}
+
+.formulario-reporte div, .formulario-gasto div {
+  margin-bottom: 0.5rem;
+}
+
+.formulario-reporte label, .formulario-gasto label {
+  display: inline-block;
+  width: 100px;
+  margin-right: 10px;
+}
+
+.formulario-reporte input, .formulario-gasto input {
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  width: 200px;
 }

@@ -14,14 +14,14 @@ const Egresos = () => {
           <p>Propuesta</p>
           <ul>
             <li>Monitorizar empresa</li>
-            <li>Modelo</li>
-            <li>Nombrar empresa</li>
-            <li>Aplicar</li>
+            <li>Modelo de negocio</li>
+            <li>Nombre de empresa</li>
+            <li>Aplicar filtros</li>
             <li>Uso específico</li>
             <li>Categoría</li>
             <li>Sistemas y valores</li>
-            <li>Distribución</li>
-            <li>Encontrar una empresa</li>
+            <li>Distribución geográfica</li>
+            <li>Buscar empresa</li>
           </ul>
         </div>
 
@@ -31,9 +31,9 @@ const Egresos = () => {
           <h3>Director Legal</h3>
           <p><strong>Funcionalidades disponibles:</strong></p>
           <ul>
-            <li>Capítulo digitalizado en gestión</li>
-            <li>Distribuidores para entrega de datos</li>
-            <li>Atender a un conjunto de usuarios</li>
+            <li>Documentación digitalizada en gestión</li>
+            <li>Distribuidores para entrega de información</li>
+            <li>Gestión de usuarios</li>
           </ul>
         </div>
       </section>
