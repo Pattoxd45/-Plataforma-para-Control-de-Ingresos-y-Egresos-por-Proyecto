@@ -1,4 +1,3 @@
-// components/perfil.jsx
 import React from 'react';
 import '../styles/perfil.css';
 

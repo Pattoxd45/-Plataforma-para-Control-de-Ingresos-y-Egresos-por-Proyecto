@@ -1,4 +1,3 @@
-// components/reportes.jsx
 import React from 'react';
 import '../styles/reportes.css';
 
