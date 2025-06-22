@@ -33,7 +33,7 @@ const Menu = () => {
         <li onClick={() => navigateAndClose('/reportes')}>Reportes</li>
         <li onClick={() => navigateAndClose('/about')}>About</li>
         <li onClick={() => navigateAndClose('/perfil')}>Perfil</li>
-        <li onClick={() => {
+       <li onClick={() => {
           logout();
           setIsOpen(false); // Cerrar el menú después de cerrar sesión
         }} className="logout-button">Cerrar Sesión</li>

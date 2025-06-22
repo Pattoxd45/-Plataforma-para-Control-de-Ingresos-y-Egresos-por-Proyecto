@@ -1,7 +1,7 @@
 \section{Funcionalidades}
-\subsection{Gestión de Usuarios}
+\subsection*{Gestión de Usuarios}
 \begin{itemize}
-    \item \textbf{Autenticación} mediante SupaBase Auth:
+    \item \textbf{Autenticación} mediante Supabase Auth:
     \begin{itemize}
         \item Registro con verificación de email.
         \item Inicio de sesión con email/contraseña.
@@ -9,26 +9,19 @@
         \item Sesiones persistentes seguras.
     \end{itemize}
     
-    \item \textbf{Recuperación de contraseña}:
-    \begin{itemize}
-        \item Flujo automatizado con SupaBase.
-        \item Enlaces de recuperación con expiración.
-        \item Validación de seguridad en el frontend.
-    \end{itemize}
-    
     \item \textbf{Perfil de usuario}:
     \begin{itemize}
-        \item Almacenamiento en tabla \texttt{auth.users} de SupaBase.
+        \item Almacenamiento en tabla \texttt{auth.users} de Supabase.
         \item Edición segura de información básica.
         \item Registro de último inicio de sesión mediante triggers.
     \end{itemize}
 \end{itemize}
 
-\subsection{Gestión de Ingresos y Egresos}
+\subsection*{Gestión de Ingresos y Egresos}
 \begin{itemize}
     \item \textbf{Registro de transacciones}:
     \begin{itemize}
-        \item Implementado mediante tablas \texttt{transactions} en SupaBase.
+        \item Implementado mediante tablas \texttt{transactions} en Supabase.
         \item Campos obligatorios: monto, fecha, descripción, categoría, tipo (ingreso/egreso).
         \item Relación con proyectos mediante \texttt{project\_id}.
         \item Validación de presupuesto mediante triggers.
@@ -39,7 +32,7 @@
         \item \textbf{Protección de datos}:
         \begin{itemize}
             \item Implementación de Row Level Security (RLS) para restringir acceso.
-            \item Políticas personalizadas para UPDATE/DELETE en SupaBase.
+            \item Políticas personalizadas para UPDATE/DELETE en Supabase.
         \end{itemize}
         
         \item \textbf{Soft Delete}:
@@ -53,7 +46,7 @@
         \item \textbf{Histórico de cambios}:
         \begin{itemize}
             \item Tabla \texttt{transactions\_log} para auditoría.
-            \item Triggers en SupaBase que registran:
+            \item Triggers en Supabase que registran:
             \begin{itemize}
                 \item Usuario que realizó el cambio.
                 \item Fecha y hora exacta.
@@ -78,36 +71,25 @@
     \item \textbf{Visualización}:
     \begin{itemize}
         \item Tablas interactivas con ordenamiento por columnas.
-        \item Resúmenes gráficos usando datos de SupaBase.
         \item Vista consolidada por periodos (diario, semanal, mensual).
-        \item Sincronización en tiempo real con SupaBase subscriptions.
-    \end{itemize}
-    
-    \item \textbf{Validaciones}:
-    \begin{itemize}
-        \item Restricción de tipos de datos a nivel de base de datos.
-        \item Verificación de consistencia financiera.
-        \item Prevención de duplicados mediante triggers.
+        \item Sincronización en tiempo real con Supabase subscriptions.
     \end{itemize}
 \end{itemize}
 
-\subsection{Reportes y Finanzas}
+\subsection*{Reportes y Finanzas}
 \begin{itemize}
     \item Generación de reportes financieros mediante funciones RPC.
-    \item Exportación a formatos estándar (Excel/PDF).
-    \item Visualización de balances y gráficos.
-    \item Registro de cambios en reportes mediante triggers.
+    \item Exportación a formatos estándar (Excel/PDF) \textbf{(pendiente)}.
 \end{itemize}
 
-\subsection{Gestión de Notificaciones}
+\subsection*{Gestión de Notificaciones}
 \begin{itemize}
     \item Registro de notificaciones en tabla \texttt{notifications}.
     \item Función RPC para marcar notificaciones como leídas.
     \item Trigger para marcar notificaciones expiradas automáticamente.
-    \item Vista para agrupar notificaciones por prioridad.
 \end{itemize}
 
-\subsection{Gestión de Adjuntos}
+\subsection*{Gestión de Adjuntos}
 \begin{itemize}
     \item Almacenamiento de archivos relacionados con proyectos y transacciones.
     \item Validación de formato de archivos mediante triggers.

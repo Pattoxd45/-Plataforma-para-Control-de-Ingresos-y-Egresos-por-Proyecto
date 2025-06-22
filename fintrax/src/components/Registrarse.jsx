@@ -1,23 +1,43 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from './connections/endpoints';
-import '../styles/login.css';
+import '../styles/register.css';
 
-function Login() {
+function Register() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false); // Estado para mostrar/ocultar contraseña
   const [errorMessage, setErrorMessage] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
-    setLoading(true);
     setErrorMessage('');
+    setSuccessMessage('');
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      // Verificar si el correo ya está registrado
+      const { data: existingUser, error: checkError } = await supabase
+        .from('auth.users')
+        .select('email')
+        .eq('email', email)
+        .single();
+
+      if (checkError && checkError.code !== 'PGRST116') {
+        // Error inesperado al verificar el usuario
+        setErrorMessage('Usuario ya registrado. Por favor, inicia sesión.');
+        return;
+      }
+
+      if (existingUser) {
+        // Si el usuario ya existe, mostrar un mensaje de error
+        setErrorMessage('El correo ya está registrado. Por favor, inicia sesión.');
+        return;
+      }
+
+      // Registrar al usuario si no existe
+      const { error } = await supabase.auth.signUp({
         email,
         password,
       });
@@ -25,20 +45,22 @@ function Login() {
       if (error) {
         setErrorMessage(error.message);
       } else {
-        navigate('/Inicio'); // Redirigir al inicio después del login
+        setSuccessMessage('Registro exitoso. Redirigiendo al login...');
+        setTimeout(() => {
+          navigate('/'); // Redirigir al login después de un registro exitoso
+        }, 2000); // Esperar 2 segundos antes de redirigir
       }
     } catch (error) {
       setErrorMessage('Error inesperado. Intenta nuevamente.');
-    } finally {
-      setLoading(false);
     }
   };
 
   return (
-    <div className="login-container">
-      <form className="login-form" onSubmit={handleLogin}>
-        <h2>Iniciar Sesión</h2>
+    <div className="register-container">
+      <form className="register-form" onSubmit={handleRegister}>
+        <h2>Crear Cuenta</h2>
         {errorMessage && <p className="error-message">{errorMessage}</p>}
+        {successMessage && <p className="success-message">{successMessage}</p>}
         <div className="form-group">
           <label htmlFor="email">Correo Electrónico</label>
           <input
@@ -68,21 +90,13 @@ function Login() {
             </button>
           </div>
         </div>
-        <button type="submit" disabled={loading}>
-          {loading ? 'Cargando...' : 'Iniciar Sesión'}
-        </button>
+        <button type="submit">Registrarse</button>
       </form>
-      <div className="login-links">
+      <div className="register-links">
         <p className="link-item">
-          ¿No tienes una cuenta?{' '}
-          <span className="link" onClick={() => navigate('/Registrarse')}>
-            Registrarse
-          </span>
-        </p>
-        <p className="link-item">
-          ¿Olvidaste tu contraseña?{' '}
-          <span className="link" onClick={() => navigate('/Recuperar_Contrasena')}>
-            Recuperar Contraseña
+          ¿Ya tienes una cuenta?{' '}
+          <span className="link" onClick={() => navigate('/')}>
+            Iniciar Sesión
           </span>
         </p>
       </div>
@@ -90,4 +104,4 @@ function Login() {
   );
 }
 
-export default Login;
+export default Register;

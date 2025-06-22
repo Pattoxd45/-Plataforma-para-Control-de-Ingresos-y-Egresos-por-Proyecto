@@ -1,0 +1,48 @@
+\section{Meta de Avance Propuesta al Inicio}
+
+\subsection*{Metas Iniciales}
+El proyecto Fintrax tiene como objetivo principal desarrollar una plataforma para el control de ingresos y egresos por proyecto, dirigida a emprendedores y organizaciones. Las metas iniciales propuestas incluyen:
+\begin{itemize}
+    \item Implementar una base de datos estructurada para gestionar proyectos, transacciones, reportes, usuarios y notificaciones.
+    \item Desarrollar un frontend interactivo utilizando React.js para facilitar la gestión financiera.
+    \item Integrar Supabase como backend para autenticación, almacenamiento y funciones avanzadas como triggers y vistas.
+    \item Crear funcionalidades básicas como:
+    \begin{itemize}
+        \item Registro y autenticación de usuarios.
+        \item Gestión de proyectos y transacciones.
+        \item Generación de reportes financieros.
+        \item Visualización de datos en tiempo real.
+    \end{itemize}
+\end{itemize}
+
+\subsection*{Avance Actual}
+Hasta el momento, se han completado las siguientes tareas:
+\begin{itemize}
+    \item \textbf{Base de datos:}
+    \begin{itemize}
+        \item Creación de tablas principales como \texttt{projects}, \texttt{transactions}, \texttt{reports}, \texttt{notifications}, entre otras.
+        \item Implementación de Row Level Security (RLS) para garantizar la seguridad de los datos.
+        \item Configuración de triggers para auditoría, validaciones y actualizaciones automáticas.
+        \item Creación de vistas para facilitar consultas como balances de proyectos y transacciones activas.
+    \end{itemize}
+    \item \textbf{Backend:}
+    \begin{itemize}
+        \item Desarrollo de funciones RPC para cálculos financieros y generación de reportes.
+        \item Configuración de endpoints para interactuar con la base de datos.
+    \end{itemize}
+    \item \textbf{Frontend:}
+    \begin{itemize}
+        \item Implementación de componentes principales como \texttt{Proyectos}, \texttt{Ingresos}, \texttt{Egresos}, \texttt{Reportes}, y \texttt{Perfil}.
+        \item Integración de Supabase para autenticación y manejo de datos.
+        \item Diseño inicial de la interfaz con estilos personalizados.
+    \end{itemize}
+\end{itemize}
+
+\subsection*{Próximos Pasos}
+El enfoque inmediato será:
+\begin{itemize}
+    \item Completar las funcionalidades faltantes, como filtros avanzados y exportación de reportes.
+    \item Realizar pruebas de integración entre el frontend y el backend.
+    \item Mejorar la experiencia de usuario mediante ajustes en el diseño y validaciones en tiempo real.
+    \item Desplegar la plataforma para pruebas iniciales.
+\end{itemize}
