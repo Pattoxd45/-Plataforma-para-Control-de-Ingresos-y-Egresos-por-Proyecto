@@ -6,6 +6,7 @@
 \usepackage{enumitem}
 \usepackage{parskip}
 \usepackage{float}
+\usepackage{titling}
 
 \title{Informe Técnico: Plataforma Fintrax}
 \author{Carlos Ulloa, Patricio Valdés, Víctor Sepúlveda}
@@ -13,7 +14,13 @@
 
 \begin{document}
 
-\maketitle
+\begin{titlepage}
+    \maketitle
+    \thispagestyle{empty} % Elimina el número en la portada
+\end{titlepage}
+\newpage
+\tableofcontents
+\thispagestyle{empty} % Elimina el número en la página del índice
 \newpage
 \section{Introducción}
 Fintrax es una plataforma integral diseñada para el control de ingresos y egresos por proyecto, dirigida a emprendedores, freelancers, startups y organizaciones que requieren una gestión financiera precisa desde etapas tempranas. Este informe detalla las funcionalidades, metodología de desarrollo, arquitectura, y contribuciones individuales del equipo.
@@ -33,8 +40,8 @@ Fintrax es una plataforma integral diseñada para el control de ingresos y egres
     \item Enlace de despliegue: (pendiente de implementación)
 \end{itemize}
 
-\section{Conclusión}
-Fintrax busca empoderar a los emprendedores mediante una herramienta simple pero poderosa para la gestión financiera temprana de proyectos. Este informe representa la primera fase del proyecto, donde se han establecido las bases técnicas y funcionales para el desarrollo posterior.
+% \section{Conclusión}
+% Fintrax busca empoderar a los emprendedores mediante una herramienta simple pero poderosa para la gestión financiera temprana de proyectos. Este informe representa la primera fase del proyecto, donde se han establecido las bases técnicas y funcionales para el desarrollo posterior.
 
 \end{document}
 
