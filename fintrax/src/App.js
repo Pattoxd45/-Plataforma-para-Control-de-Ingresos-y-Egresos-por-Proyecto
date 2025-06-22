@@ -12,12 +12,13 @@ import Login from './components/login';
 import Proyectos from './components/proyectos';
 import Register from './components/Registrarse';
 import RecoverPassword from './components/recuperarContrasena'; // Importar la página de recuperación de contraseña
+import ConfirmacionRecuperacion from './components/ConfirmacionRecuperacion';
 
 
 function App() {
   const location = useLocation(); // Hook para obtener la ruta actual
 
-  const hideMenuRoutes = ['/Registrarse', '/Recuperar_Contrasena', '/']; // Rutas donde no se debe mostrar el menú
+  const hideMenuRoutes = ['/Registrarse', '/Recuperar_Contrasena','/ConfirmacionRecuperacion', '/']; // Rutas donde no se debe mostrar el menú
 
   return (
     <div className="app-container">
@@ -35,6 +36,7 @@ function App() {
           <Route path="/Proyectos" element={<Proyectos />} />
           <Route path="/Registrarse" element={<Register />} /> {/* Ruta para registro */}
           <Route path="/Recuperar_Contrasena" element={<RecoverPassword />} /> {/* Ruta para recuperación de contraseña */}
+          <Route path="/ConfirmacionRecuperacion" element={<ConfirmacionRecuperacion />} />        
         </Routes>
       </main>
       <Copyright />

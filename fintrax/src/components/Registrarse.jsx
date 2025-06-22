@@ -6,6 +6,7 @@ import '../styles/register.css';
 function Register() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false); // Estado para mostrar/ocultar contraseña
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const navigate = useNavigate();
@@ -72,22 +73,31 @@ function Register() {
         </div>
         <div className="form-group">
           <label htmlFor="password">Contraseña</label>
-          <input
-            type="password"
-            id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
+          <div className="password-container">
+            <input
+              type={showPassword ? 'text' : 'password'} // Cambiar entre texto y contraseña
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+            <button
+              type="button"
+              className="toggle-password"
+              onClick={() => setShowPassword(!showPassword)} // Alternar estado
+            >
+              {showPassword ? '👁️' : '🙈'} {/* Ícono para mostrar/ocultar */}
+            </button>
+          </div>
         </div>
         <button type="submit">Registrarse</button>
       </form>
       <div className="register-links">
         <p className="link-item">
           ¿Ya tienes una cuenta?{' '}
-          <button className="link-button" onClick={() => navigate('/')}>
+          <span className="link" onClick={() => navigate('/')}>
             Iniciar Sesión
-          </button>
+          </span>
         </p>
       </div>
     </div>

@@ -1,9 +1,9 @@
 \section{Código Fuente}
 
-\subsection{Fragmentos Relevantes}
+\subsection*{Fragmentos Relevantes}
 A continuación, se presentan fragmentos de código funcionales que son esenciales para el funcionamiento de la plataforma, junto con una breve explicación de su propósito y funcionamiento.
 
-\subsubsection{Autenticación de Usuarios}
+\subsubsection*{Autenticación de Usuarios}
 El siguiente código verifica si un usuario está autenticado y redirige al inicio de sesión si no hay una sesión activa:
 \begin{lstlisting}[language=JavaScript]
 import { useEffect } from 'react';
@@ -29,7 +29,7 @@ const useAuthCheck = () => {
 \end{lstlisting}
 \textbf{Propósito:} Garantizar que solo usuarios autenticados puedan acceder a las funcionalidades de la plataforma.
 \newpage
-\subsubsection{Gestión de Proyectos}
+\subsubsection*{Gestión de Proyectos}
 Este fragmento obtiene los proyectos asociados al usuario autenticado:
 \begin{lstlisting}[language=JavaScript]
 const fetchProjects = async (userId) => {
@@ -47,7 +47,7 @@ const fetchProjects = async (userId) => {
 \end{lstlisting}
 \textbf{Propósito:} Recuperar y mostrar los proyectos del usuario en el frontend.
 
-\subsubsection{Generación de Reportes Financieros}
+\subsubsection*{Generación de Reportes Financieros}
 El siguiente código utiliza una función RPC para generar reportes financieros:
 \begin{lstlisting}[language=JavaScript]
 const generateReport = async (projectId, reportType, startDate, endDate) => {
@@ -63,7 +63,7 @@ const generateReport = async (projectId, reportType, startDate, endDate) => {
 \end{lstlisting}
 \textbf{Propósito:} Generar reportes financieros personalizados basados en los datos de un proyecto.
 
-\subsubsection{Validación de Transacciones en la Base de Datos}
+\subsubsection*{Validación de Transacciones en la Base de Datos}
 Este trigger en PostgreSQL valida que las transacciones no excedan el presupuesto del proyecto:
 \begin{lstlisting}[language=SQL]
 CREATE OR REPLACE FUNCTION public.validate_transaction_budget()
@@ -84,5 +84,5 @@ $$ LANGUAGE plpgsql;
 \end{lstlisting}
 \textbf{Propósito:} Garantizar que las transacciones de tipo "egreso" no superen el presupuesto disponible del proyecto.
 
-\subsection{Conclusión}
+\subsection*{Conclusión}
 Estos fragmentos de código representan las funcionalidades clave de la plataforma, desde la autenticación de usuarios hasta la gestión de proyectos y validaciones en la base de datos. Cada uno de ellos contribuye al correcto funcionamiento del sistema y asegura la integridad de los datos.

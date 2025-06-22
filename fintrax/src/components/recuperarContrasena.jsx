@@ -9,23 +9,26 @@ function RecoverPassword() {
   const [successMessage, setSuccessMessage] = useState('');
   const navigate = useNavigate();
 
-  const handleRecoverPassword = async (e) => {
-    e.preventDefault();
-    setErrorMessage('');
-    setSuccessMessage('');
+const handleRecoverPassword = async (e) => {
+  e.preventDefault();
+  setErrorMessage('');
+  setSuccessMessage('');
 
-    try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email);
+  try {
+    const redirectUrl = `${window.location.origin}/ConfirmacionRecuperacion`; // Detectar automáticamente la URL base
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: redirectUrl, // Usar la URL dinámica
+    });
 
-      if (error) {
-        setErrorMessage(error.message);
-      } else {
-        setSuccessMessage('Se ha enviado un enlace de recuperación a tu correo electrónico.');
-      }
-    } catch (error) {
-      setErrorMessage('Error inesperado. Intenta nuevamente.');
+    if (error) {
+      setErrorMessage(error.message);
+    } else {
+      setSuccessMessage('Se ha enviado un enlace de recuperación a tu correo electrónico.');
     }
-  };
+  } catch (error) {
+    setErrorMessage('Error inesperado. Intenta nuevamente.');
+  }
+};
 
   return (
     <div className="recover-password-container">
@@ -46,10 +49,12 @@ function RecoverPassword() {
         <button type="submit">Recuperar Contraseña</button>
       </form>
       <div className="recover-password-links">
-        <button className="link-button" onClick={() => navigate('/')}>
-          Volver Atrás
-        </button>
-      </div>
+        <p className="link-item">
+          <span className="link" onClick={() => navigate('/')}>
+            Volver Atrás
+          </span>
+        </p>
+      </div> 
     </div>
   );
 }

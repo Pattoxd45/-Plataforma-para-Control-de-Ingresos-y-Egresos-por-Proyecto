@@ -6,6 +6,7 @@ import '../styles/login.css';
 function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false); // Estado para mostrar/ocultar contraseña
   const [errorMessage, setErrorMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -50,13 +51,22 @@ function Login() {
         </div>
         <div className="form-group">
           <label htmlFor="password">Contraseña</label>
-          <input
-            type="password"
-            id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
+          <div className="password-container">
+            <input
+              type={showPassword ? 'text' : 'password'} // Cambiar entre texto y contraseña
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+            <button
+              type="button"
+              className="toggle-password"
+              onClick={() => setShowPassword(!showPassword)} // Alternar estado
+            >
+              {showPassword ? '👁️' : '🙈'} {/* Ícono para mostrar/ocultar */}
+            </button>
+          </div>
         </div>
         <button type="submit" disabled={loading}>
           {loading ? 'Cargando...' : 'Iniciar Sesión'}

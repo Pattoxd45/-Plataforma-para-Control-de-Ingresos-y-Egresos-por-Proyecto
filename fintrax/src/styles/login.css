@@ -89,6 +89,36 @@ button:disabled {
 .link:hover {
   color: #0056b3;
 }
+.password-container {
+  display: flex;
+  align-items: center;
+}
+
+.password-container input {
+  flex: 1; /* El input ocupa todo el espacio disponible */
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.toggle-password {
+  margin-left: 10px; /* Espacio entre el input y el botón */
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem; /* Tamaño del ícono */
+  width: 1.5rem; /* Ajustar el ancho del botón al tamaño del ícono */
+  height: 1.5rem; /* Ajustar la altura del botón al tamaño del ícono */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #007bff;
+}
+
+.toggle-password:hover {
+  color: #0056b3;
+}
 
 /* Responsive para pantallas pequeñas */
 @media (max-width: 768px) {
