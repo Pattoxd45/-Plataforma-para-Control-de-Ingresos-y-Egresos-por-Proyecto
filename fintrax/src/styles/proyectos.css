@@ -1,0 +1,32 @@
+.proyectos-container {
+  padding: 20px;
+  background-color: #f9f9f9;
+}
+
+.proyectos-container h1 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.error-message {
+  color: red;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.project-item {
+  background: #fff;
+  padding: 15px;
+  margin: 10px 0;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.project-item h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.project-item p {
+  margin: 5px 0;
+}
