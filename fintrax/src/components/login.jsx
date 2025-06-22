@@ -1,5 +1,5 @@
-// aqui va el codigo para el login
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from './connections/endpoints';
 import '../styles/login.css';
 
@@ -8,6 +8,7 @@ function Login() {
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -23,7 +24,7 @@ function Login() {
       if (error) {
         setErrorMessage(error.message);
       } else {
-        window.location.href = '/Inicio'; // Redirigir al inicio después del login
+        navigate('/Inicio'); // Redirigir al inicio después del login
       }
     } catch (error) {
       setErrorMessage('Error inesperado. Intenta nuevamente.');
@@ -61,6 +62,20 @@ function Login() {
           {loading ? 'Cargando...' : 'Iniciar Sesión'}
         </button>
       </form>
+      <div className="login-links">
+        <p className="link-item">
+          ¿No tienes una cuenta?{' '}
+          <span className="link" onClick={() => navigate('/Registrarse')}>
+            Registrarse
+          </span>
+        </p>
+        <p className="link-item">
+          ¿Olvidaste tu contraseña?{' '}
+          <span className="link" onClick={() => navigate('/Recuperar_Contrasena')}>
+            Recuperar Contraseña
+          </span>
+        </p>
+      </div>
     </div>
   );
 }

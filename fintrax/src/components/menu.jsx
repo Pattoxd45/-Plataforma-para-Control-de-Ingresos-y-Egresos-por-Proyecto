@@ -33,6 +33,8 @@ const Menu = () => {
         <li onClick={() => navigateAndClose('/reportes')}>Reportes</li>
         <li onClick={() => navigateAndClose('/about')}>About</li>
         <li onClick={() => navigateAndClose('/perfil')}>Perfil</li>
+        <li onClick={() => navigateAndClose('/Registrarse')}>Registrarse</li>
+        <li onClick={() => navigateAndClose('/Recuperar_Contrasena')}>Recuperar Contraseña</li>
         <li onClick={() => {
           logout();
           setIsOpen(false); // Cerrar el menú después de cerrar sesión

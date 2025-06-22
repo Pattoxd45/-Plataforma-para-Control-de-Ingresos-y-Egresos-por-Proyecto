@@ -1,23 +1,24 @@
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '../connections/endpoints';
 
 const useAuthCheck = () => {
   const navigate = useNavigate();
+  const location = useLocation(); // Obtener la ruta actual
 
-  // Verificar si el usuario está logueado
   useEffect(() => {
     const checkSession = async () => {
       const { data: session } = await supabase.auth.getSession();
-      if (!session?.session?.user) {
-        navigate('/'); // Redirigir al login si no hay sesión activa
+      const unauthenticatedRoutes = ['/Registrarse', '/Recuperar_Contrasena']; // Rutas que no requieren autenticación
+
+      if (!session?.session?.user && !unauthenticatedRoutes.includes(location.pathname)) {
+        navigate('/'); // Redirigir al login si no hay sesión activa y no está en una ruta permitida
       }
     };
 
     checkSession();
-  }, [navigate]);
+  }, [navigate, location]);
 
-  // Función para cerrar sesión
   const logout = async () => {
     try {
       await supabase.auth.signOut(); // Cerrar sesión

@@ -1,5 +1,4 @@
-/* Estilo responsive para la pantalla de login */
-.login-container {
+.register-container {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -10,7 +9,7 @@
   box-sizing: border-box;
 }
 
-.login-form {
+.register-form {
   background: #fff;
   padding: 20px;
   border-radius: 8px;
@@ -20,7 +19,7 @@
   box-sizing: border-box;
 }
 
-.login-form h2 {
+.register-form h2 {
   text-align: center;
   margin-bottom: 20px;
   font-size: 1.5rem;
@@ -57,9 +56,8 @@ button {
   font-size: 1rem;
 }
 
-button:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
+button:hover {
+  background-color: #0056b3;
 }
 
 .error-message {
@@ -69,34 +67,44 @@ button:disabled {
   font-size: 0.9rem;
 }
 
-/* Estilo para los enlaces debajo del formulario */
-.login-links {
+.success-message {
+  color: green;
+  text-align: center;
+  margin-bottom: 10px;
+  font-size: 0.9rem;
+}
+
+/* Centrar el texto de "¿Ya tienes una cuenta?" */
+.register-links {
   margin-top: 20px;
   text-align: center;
 }
 
 .link-item {
-  margin: 5px 0;
   font-size: 0.9rem;
+  text-align: center; /* Centrar el texto */
 }
 
-.link {
+.link-button {
+  background: none;
+  border: none;
   color: #007bff;
   cursor: pointer;
   text-decoration: underline;
+  font-size: 0.9rem;
 }
 
-.link:hover {
+.link-button:hover {
   color: #0056b3;
 }
 
 /* Responsive para pantallas pequeñas */
 @media (max-width: 768px) {
-  .login-form {
+  .register-form {
     padding: 15px;
   }
 
-  .login-form h2 {
+  .register-form h2 {
     font-size: 1.3rem;
   }
 
@@ -112,18 +120,19 @@ button:disabled {
     font-size: 0.9rem;
   }
 
-  .error-message {
+  .error-message,
+  .success-message {
     font-size: 0.8rem;
   }
 }
 
 /* Responsive para pantallas muy pequeñas (teléfonos) */
 @media (max-width: 480px) {
-  .login-form {
+  .register-form {
     padding: 10px;
   }
 
-  .login-form h2 {
+  .register-form h2 {
     font-size: 1.2rem;
   }
 
@@ -139,7 +148,8 @@ button:disabled {
     font-size: 0.8rem;
   }
 
-  .error-message {
+  .error-message,
+  .success-message {
     font-size: 0.7rem;
   }
 }
