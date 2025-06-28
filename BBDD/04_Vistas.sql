@@ -140,6 +140,7 @@ ORDER BY
 CREATE OR REPLACE VIEW public.project_status_summary AS
 SELECT 
     p.id AS project_id,
+    p.user_id, -- <--- Agrega esto
     p.name AS project_name,
     p.description AS project_description,
     p.status AS project_status,
@@ -149,8 +150,8 @@ FROM
 LEFT JOIN 
     public.transactions t ON p.id = t.project_id AND t.deleted_at IS NULL
 GROUP BY 
-    p.id, p.name, p.description, p.status;
-
+    p.id, p.user_id, p.name, p.description, p.status;
+    
 -- Vista para obtener notificaciones agrupadas por prioridad
 CREATE OR REPLACE VIEW public.notifications_by_priority AS
 SELECT 
