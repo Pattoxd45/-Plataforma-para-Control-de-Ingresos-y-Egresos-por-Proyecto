@@ -16,14 +16,15 @@ import ConfirmacionRecuperacion from './components/ConfirmacionRecuperacion';
 
 
 function App() {
-  const location = useLocation(); // Hook para obtener la ruta actual
+  const location = useLocation();
 
-  const hideMenuRoutes = ['/Registrarse', '/Recuperar_Contrasena','/ConfirmacionRecuperacion', '/']; // Rutas donde no se debe mostrar el menú
+  const hideMenuRoutes = ['/Registrarse', '/Recuperar_Contrasena', '/ConfirmacionRecuperacion', '/'];
+
+  const isMenuVisible = !hideMenuRoutes.includes(location.pathname);
 
   return (
-    <div className="app-container">
-      {/* Renderizar el menú solo si no estamos en la ruta del login */}
-      {!hideMenuRoutes.includes(location.pathname) && <Menu />}
+    <div className={`app-container ${isMenuVisible ? 'menu-visible' : 'menu-hidden'}`}>
+      {isMenuVisible && <Menu />}
       <main className="main-content">
         <Routes>
           <Route path="/" element={<Login />} />
@@ -34,9 +35,9 @@ function App() {
           <Route path="/perfil" element={<Perfil />} />
           <Route path="/about" element={<About />} />
           <Route path="/Proyectos" element={<Proyectos />} />
-          <Route path="/Registrarse" element={<Register />} /> {/* Ruta para registro */}
-          <Route path="/Recuperar_Contrasena" element={<RecoverPassword />} /> {/* Ruta para recuperación de contraseña */}
-          <Route path="/ConfirmacionRecuperacion" element={<ConfirmacionRecuperacion />} />        
+          <Route path="/Registrarse" element={<Register />} />
+          <Route path="/Recuperar_Contrasena" element={<RecoverPassword />} />
+          <Route path="/ConfirmacionRecuperacion" element={<ConfirmacionRecuperacion />} />
         </Routes>
       </main>
       <Copyright />
