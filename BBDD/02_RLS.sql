@@ -178,3 +178,10 @@ ON public.access_logs
 FOR SELECT USING (
     public.access_logs.user_id = auth.uid()
 );
+
+-- Permitir insertar proyectos solo si el user_id es igual al usuario autenticado
+CREATE POLICY "user_can_insert_own_projects"
+ON public.projects
+FOR INSERT WITH CHECK (
+    user_id = auth.uid()
+);

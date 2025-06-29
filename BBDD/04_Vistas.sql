@@ -187,3 +187,20 @@ JOIN
     public.projects p ON t.project_id = p.id
 WHERE 
     t.deleted_at IS NOT NULL;
+
+-- Vista para obtener proyectos de un usuario con nombre, descripción, fecha límite, presupuesto y gastos
+CREATE OR REPLACE VIEW public.user_projects_summary AS
+SELECT
+    p.id AS project_id,
+    p.user_id,
+    p.name AS project_name,
+    p.description AS project_description,
+    p.deadline,
+    p.budget,
+    COALESCE(SUM(CASE WHEN t.type = 'egreso' THEN t.amount ELSE 0 END), 0) AS total_gastos
+FROM
+    public.projects p
+LEFT JOIN
+    public.transactions t ON p.id = t.project_id AND t.deleted_at IS NULL
+GROUP BY
+    p.id, p.user_id, p.name, p.description, p.deadline, p.budget;

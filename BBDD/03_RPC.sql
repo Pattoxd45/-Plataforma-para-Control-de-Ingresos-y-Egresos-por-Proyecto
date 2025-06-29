@@ -207,3 +207,52 @@ BEGIN
     WHERE project_id = project_id;
 END;
 $$ LANGUAGE plpgsql;
+
+
+-- Funciones utiles quizas debamos limpiar funciones de arriba
+-- Función para crear un nuevo proyecto
+CREATE OR REPLACE FUNCTION public.create_project(
+    p_user_id UUID,
+    p_name TEXT,
+    p_description TEXT,
+    p_budget NUMERIC,
+    p_deadline TIMESTAMPTZ,
+    p_status TEXT DEFAULT 'activo'
+)
+RETURNS UUID AS $$
+DECLARE
+    new_project_id UUID;
+BEGIN
+    INSERT INTO public.projects (user_id, name, description, budget, deadline, status)
+    VALUES (p_user_id, p_name, p_description, p_budget, p_deadline, p_status)
+    RETURNING id INTO new_project_id;
+
+    RETURN new_project_id;
+END;
+$$ LANGUAGE plpgsql;
+
+
+-- Editar un proyecto
+DROP FUNCTION IF EXISTS public.update_project(UUID, UUID, TEXT, TEXT, NUMERIC, TIMESTAMPTZ, TEXT);
+
+CREATE OR REPLACE FUNCTION public.update_project(
+    p_project_id UUID,
+    p_user_id UUID,
+    p_name TEXT,
+    p_description TEXT,
+    p_budget NUMERIC,
+    p_deadline TIMESTAMPTZ,
+    p_status TEXT
+)
+RETURNS VOID AS $$
+BEGIN
+    UPDATE public.projects
+    SET
+        name = COALESCE(p_name, name),
+        description = COALESCE(p_description, description),
+        budget = COALESCE(p_budget, budget),
+        deadline = COALESCE(p_deadline, deadline),
+        status = COALESCE(p_status, status)
+    WHERE id = p_project_id AND user_id = p_user_id;
+END;
+$$ LANGUAGE plpgsql;
