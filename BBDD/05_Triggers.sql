@@ -56,12 +56,30 @@ EXECUTE FUNCTION public.update_last_login();
 -- Trigger para validar que las transacciones no excedan el presupuesto del proyecto
 CREATE OR REPLACE FUNCTION public.validate_transaction_budget()
 RETURNS TRIGGER AS $$
+DECLARE
+    total_egresos NUMERIC;
 BEGIN
     IF (NEW.type = 'egreso') THEN
-        IF (
-            (SELECT COALESCE(SUM(amount), 0) FROM public.transactions WHERE project_id = NEW.project_id AND type = 'egreso' AND deleted_at IS NULL) + NEW.amount >
-            (SELECT budget FROM public.projects WHERE id = NEW.project_id)
-        ) THEN
+        IF (TG_OP = 'UPDATE') THEN
+            -- Suma todos los egresos excepto el que se está editando, y suma el nuevo valor
+            SELECT COALESCE(SUM(amount), 0) INTO total_egresos
+            FROM public.transactions
+            WHERE project_id = NEW.project_id
+              AND type = 'egreso'
+              AND deleted_at IS NULL
+              AND id <> NEW.id;
+            total_egresos := total_egresos + NEW.amount;
+        ELSE
+            -- Para INSERT, suma todos los egresos existentes y el nuevo
+            SELECT COALESCE(SUM(amount), 0) INTO total_egresos
+            FROM public.transactions
+            WHERE project_id = NEW.project_id
+              AND type = 'egreso'
+              AND deleted_at IS NULL;
+            total_egresos := total_egresos + NEW.amount;
+        END IF;
+
+        IF (total_egresos > (SELECT budget FROM public.projects WHERE id = NEW.project_id)) THEN
             RAISE EXCEPTION 'El egreso excede el presupuesto del proyecto.';
         END IF;
     END IF;

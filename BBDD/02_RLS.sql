@@ -63,6 +63,11 @@ FOR SELECT USING (
         )
     )
 );
+-- Permitir INSERT en transactions_log para usuario autenticado
+CREATE POLICY "allow_insert_transaction_log"
+ON public.transactions_log
+FOR INSERT
+WITH CHECK (user_id = auth.uid());
 
 -- Habilitar RLS en la tabla `projects`
 ALTER TABLE public.projects ENABLE ROW LEVEL SECURITY;

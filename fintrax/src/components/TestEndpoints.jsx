@@ -8,6 +8,13 @@ function TestEndpoints({ user }) {
   const [loading, setLoading] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [editMode, setEditMode] = useState(false);
+  const [egresoModalOpen, setEgresoModalOpen] = useState(false);
+  const [egresos, setEgresos] = useState([]);
+  const [egresosModalOpen, setEgresosModalOpen] = useState(false);
+  const [editEgresoModalOpen, setEditEgresoModalOpen] = useState(false);
+  const [ingresos, setIngresos] = useState([]);
+  const [ingresosModalOpen, setIngresosModalOpen] = useState(false);
+
   const [form, setForm] = useState({
     id: '',
     name: '',
@@ -15,6 +22,25 @@ function TestEndpoints({ user }) {
     budget: '',
     deadline: '',
     status: 'activo'
+  });
+  const [egresoForm, setEgresoForm] = useState({
+    amount: '',
+    date: '',
+    description: '',
+    category: '',
+    currency: 'CLP',
+    payment_method: 'efectivo',
+    tags: ''
+  });
+  const [editEgresoForm, setEditEgresoForm] = useState({
+    egreso_id: '',
+    amount: '',
+    date: '',
+    description: '',
+    category: '',
+    currency: 'CLP',
+    payment_method: 'efectivo',
+    tags: ''
   });
   const [projects, setProjects] = useState([]);
   const [selectedProjectId, setSelectedProjectId] = useState('');
@@ -33,8 +59,10 @@ function TestEndpoints({ user }) {
     }
     setLoading(false);
   };
-
+  
+  // ==============================================
   // Abrir modal para crear
+  // ==============================================
   const openCreateModal = () => {
     setEditMode(false);
     setForm({
@@ -47,8 +75,9 @@ function TestEndpoints({ user }) {
     });
     setModalOpen(true);
   };
-
+  // ==============================================
   // Abrir modal para editar
+  // ==============================================
   const openEditModal = () => {
     const project = projects.find(p => p.project_id === selectedProjectId);
     if (!project) return;
@@ -63,35 +92,58 @@ function TestEndpoints({ user }) {
     });
     setModalOpen(true);
   };
-
+  // ==============================================
+  // Abrir modal para Editar egreso
+  // ==============================================
+  const openEditEgresoModal = (egreso) => {
+    setEditEgresoForm({
+      egreso_id: egreso.egreso_id,
+      amount: egreso.monto,
+      date: egreso.fecha,
+      description: egreso.descripcion,
+      category: egreso.category || '',
+      currency: egreso.currency || 'CLP',
+      payment_method: egreso.payment_method || 'efectivo',
+      tags: egreso.tags ? egreso.tags.join(',') : ''
+    });
+    setEditEgresoModalOpen(true);
+  }; 
+  // ==============================================
+  // Abrir modal para agregar egreso
+  // ==============================================
+  const openEgresoModal = () => {
+    setEgresoForm({
+      amount: '',
+      date: '',
+      description: '',
+      category: '',
+      currency: 'CLP',
+      payment_method: 'efectivo',
+      tags: ''
+    });
+    setEgresoModalOpen(true);
+  };
+  // ==============================================
   // Handler para crear o editar proyecto
+  // ==============================================
   const handleSubmitProject = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
       if (editMode && form.id) {
-        console.log({
-  id: form.id,
-  user_id: userId,
-  name: form.name,
-  description: form.description,
-  budget: Number(form.budget),
-  deadline: form.deadline ? new Date(form.deadline).toISOString() : null,
-  status: form.status
-});
-      await endpoints.projects.updateProject({
-        id: form.id,
-        user_id: userId, // <-- este debe tener valor
-        name: form.name,
-        description: form.description,
-        budget: Number(form.budget),
-        deadline: form.deadline ? new Date(form.deadline).toISOString() : null,
-        status: form.status
-      });        
+        await endpoints.projects.updateProject({
+          id: form.id,
+          user_id: userId,
+          name: form.name,
+          description: form.description,
+          budget: Number(form.budget),
+          deadline: form.deadline ? new Date(form.deadline).toISOString() : null,
+          status: form.status
+        });
         setOutput('Proyecto actualizado correctamente');
       } else {
         const { data, error } = await supabase.rpc('create_project', {
-          p_user_id: userId, // Siempre enviar el userId del usuario logeado
+          p_user_id: userId,
           p_name: form.name,
           p_description: form.description,
           p_budget: Number(form.budget),
@@ -103,6 +155,112 @@ function TestEndpoints({ user }) {
       }
       setModalOpen(false);
       setForm({ id: '', name: '', description: '', budget: '', deadline: '', status: 'activo' });
+      handleGetUserProjectsSummary(); // Refrescar lista
+    } catch (e) {
+      setOutput(e.message);
+    }
+    setLoading(false);
+  };
+  // ==============================================
+  // Eliminar (soft-delete) proyecto seleccionado
+  // ==============================================
+  const handleDeleteProject = async () => {
+    if (!selectedProjectId || !userId) {
+      setOutput('Selecciona un proyecto para eliminar.');
+      return;
+    }
+    setLoading(true);
+    try {
+      const { error } = await supabase.rpc('soft_delete_project', {
+        p_project_id: selectedProjectId,
+        p_user_id: userId,
+        p_reason: 'Eliminado desde TestEndpoints'
+      });
+      if (error) throw error;
+      setOutput('Proyecto eliminado (soft-delete) correctamente.');
+      setSelectedProjectId('');
+      handleGetUserProjectsSummary(); // Refrescar lista
+    } catch (e) {
+      setOutput(e.message);
+    }
+    setLoading(false);
+  };
+  // ======================================================
+  // Handler para obtener egresos del proyecto seleccionado
+  // ======================================================
+  const handleGetProjectEgresos = async () => {
+    if (!selectedProjectId) {
+      setOutput('Selecciona un proyecto para ver sus egresos.');
+      return;
+    }
+    setLoading(true);
+    try {
+      const data = await endpoints.projects.getProjectEgresos(selectedProjectId);
+      setEgresos(data || []);
+      setEgresosModalOpen(true);
+      setOutput(JSON.stringify(data, null, 2));
+    } catch (e) {
+      setOutput(e.message);
+    }
+    setLoading(false);
+  };
+  // =========================================================
+  // Handler para editar egreso
+  // =========================================================
+  const handleSubmitEditEgreso = async (e) => {
+    e.preventDefault();
+    if (!selectedProjectId || !editEgresoForm.egreso_id) {
+      setOutput('Selecciona un egreso para editar.');
+      return;
+    }
+    setLoading(true);
+    try {
+      await endpoints.projects.editEgreso({
+        transactionId: editEgresoForm.egreso_id,
+        projectId: selectedProjectId,
+        amount: editEgresoForm.amount,
+        date: editEgresoForm.date,
+        description: editEgresoForm.description,
+        category: editEgresoForm.category,
+        currency: editEgresoForm.currency,
+        payment_method: editEgresoForm.payment_method,
+        tags: editEgresoForm.tags ? editEgresoForm.tags.split(',').map(tag => tag.trim()) : null
+      });
+      setOutput('Egreso editado correctamente.');
+      setEditEgresoModalOpen(false);
+      handleGetProjectEgresos();
+    } catch (e) {
+      setOutput(e.message);
+    }
+    setLoading(false);
+  };
+  const handleEditEgresoChange = e => setEditEgresoForm({ ...editEgresoForm, [e.target.name]: e.target.value });
+
+  // ===========================
+  // Handler para agregar egreso
+  // ===========================
+  const handleSubmitEgreso = async (e) => {
+    e.preventDefault();
+    if (!selectedProjectId) {
+      setOutput('Selecciona un proyecto para agregar egresos.');
+      return;
+    }
+    setLoading(true);
+    try {
+      // Usar el endpoint centralizado
+      const data = await endpoints.projects.addEgreso({
+        projectId: selectedProjectId,
+        amount: egresoForm.amount,
+        date: egresoForm.date,
+        description: egresoForm.description,
+        category: egresoForm.category,
+        currency: egresoForm.currency,
+        payment_method: egresoForm.payment_method,
+        tags: egresoForm.tags ? egresoForm.tags.split(',').map(tag => tag.trim()) : null
+      });
+      setOutput(`Egreso agregado correctamente. ID: ${data}`);
+      setEgresoModalOpen(false);
+      handleGetUserProjectsSummary(); // Refrescar lista
     } catch (e) {
       setOutput(e.message);
     }
@@ -110,7 +268,29 @@ function TestEndpoints({ user }) {
   };
 
   const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value });
+  const handleEgresoChange = e => setEgresoForm({ ...egresoForm, [e.target.name]: e.target.value });
+// =========================================================
+//  Handler para obtener Ingresos de todos los proyectos del usuario
+// =========================================================
+  const handleGetUserProjectsIngresos = async () => {
+    if (!userId) {
+      setOutput('No hay usuario autenticado.');
+      return;
+    }
+    setLoading(true);
+    try {
+      const data = await endpoints.projects.getUserProjectsIngresos(userId);
+      setIngresos(data || []);
+      setIngresosModalOpen(true);
+      setOutput(JSON.stringify(data, null, 2));
+    } catch (e) {
+      setOutput(e.message);
+    }
+    setLoading(false);
+  };
 
+
+  // =========================================================
   return (
     <div className="test-endpoints-container" style={{ padding: 24, maxWidth: 600, margin: '0 auto' }}>
       <h2 className="test-endpoints-title">Test de Endpoints</h2>
@@ -141,14 +321,22 @@ function TestEndpoints({ user }) {
         >
           Crear nuevo proyecto (modal)
         </button>
+        <button
+          onClick={handleGetUserProjectsIngresos}
+          className="test-endpoints-btn"
+          style={{ width: '100%', padding: 12, fontSize: 16, marginBottom: 12, background: '#16a085', color: '#fff' }}
+          disabled={loading || !userId}
+        >
+          Ver Ingresos del Usuario
+        </button>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
           <select
             value={selectedProjectId}
             onChange={e => setSelectedProjectId(e.target.value)}
-            style={{ width: '70%' }}
+            style={{ width: '40%' }}
             disabled={projects.length === 0}
           >
-            <option value="">-- Selecciona proyecto para editar --</option>
+            <option value="">-- Selecciona proyecto --</option>
             {projects.map(p => (
               <option key={p.project_id} value={p.project_id}>
                 {p.project_name}
@@ -158,13 +346,38 @@ function TestEndpoints({ user }) {
           <button
             onClick={openEditModal}
             className="test-endpoints-btn"
-            style={{ width: '30%', padding: 12, fontSize: 16 }}
+            style={{ width: '20%', padding: 12, fontSize: 16 }}
             disabled={!selectedProjectId}
           >
-            Editar proyecto
+            Editar
+          </button>
+          <button
+            onClick={handleDeleteProject}
+            className="test-endpoints-btn"
+            style={{ width: '20%', padding: 12, fontSize: 16, background: '#e74c3c', color: '#fff' }}
+            disabled={!selectedProjectId || loading}
+          >
+            Eliminar
+          </button>
+          <button
+            onClick={openEgresoModal}
+            className="test-endpoints-btn"
+            style={{ width: '20%', padding: 12, fontSize: 16, background: '#27ae60', color: '#fff' }}
+            disabled={!selectedProjectId}
+          >
+            Agregar Egreso
+          </button>
+          <button
+            onClick={handleGetProjectEgresos}
+            className="test-endpoints-btn"
+            style={{ width: '20%', padding: 12, fontSize: 16, background: '#2980b9', color: '#fff' }}
+            disabled={!selectedProjectId}
+          >
+            Ver Egresos
           </button>
         </div>
       </div>
+      {/* Modals */}
       <CustomModal open={modalOpen} onClose={() => setModalOpen(false)} title={editMode ? "Editar Proyecto" : "Crear Proyecto"}>
         <form className="test-endpoints-form" onSubmit={handleSubmitProject}>
           <div>
@@ -195,6 +408,167 @@ function TestEndpoints({ user }) {
           </button>
         </form>
       </CustomModal>
+      <CustomModal open={egresoModalOpen} onClose={() => setEgresoModalOpen(false)} title="Agregar Egreso">
+        <form className="test-endpoints-form" onSubmit={handleSubmitEgreso}>
+          <div>
+            <label>Monto:</label>
+            <input name="amount" type="number" value={egresoForm.amount} onChange={handleEgresoChange} required style={{ width: '100%' }} />
+          </div>
+          <div>
+            <label>Fecha:</label>
+            <input name="date" type="date" value={egresoForm.date} onChange={handleEgresoChange} required style={{ width: '100%' }} />
+          </div>
+          <div>
+            <label>Descripción:</label>
+            <textarea name="description" value={egresoForm.description} onChange={handleEgresoChange} style={{ width: '100%' }} />
+          </div>
+          <div>
+            <label>Categoría:</label>
+            <input name="category" value={egresoForm.category} onChange={handleEgresoChange} style={{ width: '100%' }} />
+          </div>
+          <div>
+            <label>Moneda:</label>
+            <select name="currency" value={egresoForm.currency} onChange={handleEgresoChange} style={{ width: '100%' }}>
+              <option value="CLP">CLP</option>
+              <option value="USD">USD</option>
+              <option value="EUR">EUR</option>
+              <option value="BTC">BTC</option>
+            </select>
+          </div>
+          <div>
+            <label>Método de pago:</label>
+            <select name="payment_method" value={egresoForm.payment_method} onChange={handleEgresoChange} style={{ width: '100%' }}>
+              <option value="efectivo">Efectivo</option>
+              <option value="tarjeta">Tarjeta</option>
+              <option value="transferencia">Transferencia</option>
+              <option value="otros">Otros</option>
+            </select>
+          </div>
+          <div>
+            <label>Tags (separados por coma):</label>
+            <input name="tags" value={egresoForm.tags} onChange={handleEgresoChange} style={{ width: '100%' }} />
+          </div>
+          <button type="submit" disabled={loading} style={{ marginTop: 16, width: '100%' }}>
+            {loading ? 'Agregando...' : 'Agregar Egreso'}
+          </button>
+
+        </form>
+      </CustomModal>
+      <CustomModal open={egresosModalOpen} onClose={() => setEgresosModalOpen(false)} title="Egresos del Proyecto">
+        <div style={{ maxHeight: 400, overflowY: 'auto' }}>
+          {egresos.length === 0 ? (
+            <p>No hay egresos registrados para este proyecto.</p>
+          ) : (
+            <table style={{ width: '100%', fontSize: 14 }}>
+              <thead>
+                <tr>
+                  <th>Monto</th>
+                  <th>Fecha</th>
+                  <th>Descripción</th>
+                  <th>Categoría</th>
+                  <th>Responsable</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {egresos.map(e => (
+                  <tr key={e.egreso_id}>
+                    <td>{e.monto}</td>
+                    <td>{e.fecha}</td>
+                    <td>{e.descripcion}</td>
+                    <td>{e.category}</td>
+                    <td>{e.responsable}</td>
+                    <td>
+                      <button
+                        style={{ fontSize: 12, padding: '4px 8px' }}
+                        onClick={() => openEditEgresoModal(e)}
+                      >
+                        Editar
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </CustomModal>
+      <CustomModal open={editEgresoModalOpen} onClose={() => setEditEgresoModalOpen(false)} title="Editar Egreso">
+        <form className="test-endpoints-form" onSubmit={handleSubmitEditEgreso}>
+          <div>
+            <label>Monto:</label>
+            <input name="amount" type="number" value={editEgresoForm.amount} onChange={handleEditEgresoChange} required style={{ width: '100%' }} />
+          </div>
+          <div>
+            <label>Fecha:</label>
+            <input name="date" type="date" value={editEgresoForm.date} onChange={handleEditEgresoChange} required style={{ width: '100%' }} />
+          </div>
+          <div>
+            <label>Descripción:</label>
+            <textarea name="description" value={editEgresoForm.description} onChange={handleEditEgresoChange} style={{ width: '100%' }} />
+          </div>
+          <div>
+            <label>Categoría:</label>
+            <input name="category" value={editEgresoForm.category} onChange={handleEditEgresoChange} style={{ width: '100%' }} />
+          </div>
+          <div>
+            <label>Moneda:</label>
+            <select name="currency" value={editEgresoForm.currency} onChange={handleEditEgresoChange} style={{ width: '100%' }}>
+              <option value="CLP">CLP</option>
+              <option value="USD">USD</option>
+              <option value="EUR">EUR</option>
+              <option value="BTC">BTC</option>
+            </select>
+          </div>
+          <div>
+            <label>Método de pago:</label>
+            <select name="payment_method" value={editEgresoForm.payment_method} onChange={handleEditEgresoChange} style={{ width: '100%' }}>
+              <option value="efectivo">Efectivo</option>
+              <option value="tarjeta">Tarjeta</option>
+              <option value="transferencia">Transferencia</option>
+              <option value="otros">Otros</option>
+            </select>
+          </div>
+          <div>
+            <label>Tags (separados por coma):</label>
+            <input name="tags" value={editEgresoForm.tags} onChange={handleEditEgresoChange} style={{ width: '100%' }} />
+          </div>
+          <button type="submit" disabled={loading} style={{ marginTop: 16, width: '100%' }}>
+            {loading ? 'Guardando...' : 'Guardar Cambios'}
+          </button>
+        </form>
+      </CustomModal>
+      <CustomModal open={ingresosModalOpen} onClose={() => setIngresosModalOpen(false)} title="Ingresos de tus Proyectos">
+        <div style={{ maxHeight: 400, overflowY: 'auto' }}>
+          {ingresos.length === 0 ? (
+            <p>No hay ingresos registrados para tus proyectos.</p>
+          ) : (
+            <table style={{ width: '100%', fontSize: 14 }}>
+              <thead>
+                <tr>
+                  <th>Proyecto</th>
+                  <th>Monto</th>
+                  <th>Fecha</th>
+                  <th>Descripción</th>
+                  <th>Responsable</th>
+                </tr>
+              </thead>
+              <tbody>
+                {ingresos.map(i => (
+                  <tr key={i.project_id}>
+                    <td>{i.proyecto}</td>
+                    <td>{i.monto}</td>
+                    <td>{i.fecha}</td>
+                    <td>{i.descripcion}</td>
+                    <td>{i.responsable}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </CustomModal>
+
       <div style={{ marginTop: 16 }}>
         <strong>Output:</strong>
         <pre

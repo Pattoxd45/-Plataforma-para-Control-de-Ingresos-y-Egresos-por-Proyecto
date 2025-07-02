@@ -202,5 +202,73 @@ FROM
     public.projects p
 LEFT JOIN
     public.transactions t ON p.id = t.project_id AND t.deleted_at IS NULL
+WHERE
+    p.status = 'activo'
 GROUP BY
     p.id, p.user_id, p.name, p.description, p.deadline, p.budget;
+
+-- Vista para obtener egresos por proyecto con detalles de usuario
+CREATE OR REPLACE VIEW public.project_egresos_view AS
+SELECT
+    t.id AS egreso_id,
+    t.project_id,
+    p.name AS proyecto,
+    t.amount AS monto,
+    t.date::date AS fecha,
+    t.description AS descripcion,
+    t.category,
+    t.currency,
+    t.payment_method,
+    t.tags,
+    u.email AS responsable
+FROM
+    public.transactions t
+JOIN
+    public.projects p ON t.project_id = p.id
+JOIN
+    auth.users u ON p.user_id = u.id
+WHERE
+    t.type = 'egreso'
+    AND t.deleted_at IS NULL
+    AND p.status = 'activo';
+
+-- Vista para visualizar ingresos por proyecto, mostrando la diferencia entre presupuesto y gastos
+CREATE OR REPLACE VIEW public.project_ingresos_view AS
+SELECT
+    p.id AS project_id,
+    p.name AS proyecto,
+    (p.budget - COALESCE(SUM(CASE WHEN t.type = 'egreso' THEN t.amount ELSE 0 END), 0)) AS monto,
+    p.created_at::date AS fecha,
+    p.description AS descripcion,
+    u.email AS responsable
+FROM
+    public.projects p
+LEFT JOIN
+    public.transactions t ON p.id = t.project_id AND t.deleted_at IS NULL
+JOIN
+    auth.users u ON p.user_id = u.id
+WHERE
+    p.status = 'activo'
+GROUP BY
+    p.id, p.name, p.budget, p.created_at, p.description, u.email;
+
+-- Vistas para visualizar ingresos de todos los proyectos de un usuario
+CREATE OR REPLACE VIEW public.user_projects_ingresos_view AS
+SELECT
+    p.user_id,
+    u.email AS responsable,
+    p.id AS project_id,
+    p.name AS proyecto,
+    (p.budget - COALESCE(SUM(CASE WHEN t.type = 'egreso' THEN t.amount ELSE 0 END), 0)) AS monto,
+    p.created_at::date AS fecha,
+    p.description AS descripcion
+FROM
+    public.projects p
+LEFT JOIN
+    public.transactions t ON p.id = t.project_id AND t.deleted_at IS NULL
+JOIN
+    auth.users u ON p.user_id = u.id
+WHERE
+    p.status = 'activo'
+GROUP BY
+    p.user_id, u.email, p.id, p.name, p.budget, p.created_at, p.description;
