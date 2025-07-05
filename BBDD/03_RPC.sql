@@ -402,3 +402,41 @@ BEGIN
     WHERE id = p_project_id;
 END;
 $$ LANGUAGE plpgsql;
+
+-- función para editar un aumento de presupuesto de un proyecto
+DROP FUNCTION IF EXISTS public.edit_project_budget_increase(UUID, UUID, NUMERIC, UUID);
+
+CREATE OR REPLACE FUNCTION public.edit_project_budget_increase(
+    p_increase_id UUID,
+    p_project_id UUID,
+    p_amount NUMERIC,
+    p_user_id UUID
+)
+RETURNS VOID AS $$
+BEGIN
+    UPDATE public.project_budget_increases
+    SET
+        amount = COALESCE(p_amount, amount)
+    WHERE id = p_increase_id
+      AND project_id = p_project_id
+      AND user_id = p_user_id;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Cambia el nombre temporalmente
+CREATE OR REPLACE FUNCTION public.edit_project_budget_increase_v2(
+    p_increase_id UUID,
+    p_project_id UUID,
+    p_amount NUMERIC,
+    p_user_id UUID
+)
+RETURNS VOID AS $$
+BEGIN
+    UPDATE public.project_budget_increases
+    SET
+        amount = COALESCE(p_amount, amount)
+    WHERE id = p_increase_id
+      AND project_id = p_project_id
+      AND user_id = p_user_id;
+END;
+$$ LANGUAGE plpgsql;

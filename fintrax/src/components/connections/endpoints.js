@@ -150,7 +150,7 @@ export const endpoints = {
       }
       return data;
     },
-    // Editar un ingreso existente  
+    // obtener ingresos de un proyecto segun el usuario
     getUserProjectsIngresos: async (userId) => {
       const { data, error } = await supabase
         .from('user_projects_ingresos_view')
@@ -162,7 +162,70 @@ export const endpoints = {
       }
       return data;
     },
-    // Agregar un nuevo ingreso a un proyecto 
+    // Endpoint para obtener los aumentos individuales de un proyecto
+    getProjectBudgetIncreases: async (projectId) => {
+      const { data, error } = await supabase
+        .from('project_budget_increases_view')
+        .select('*')
+        .eq('project_id', projectId);
+      if (error) {
+        console.error('Error fetching project budget increases:', error);
+        throw error;
+      }
+      return data;
+    },
+    // Agregar un nuevo aumento de presupuesto a un proyecto 
+    increaseProjectBudget: async ({ projectId, amount, userId }) => {
+      const { error } = await supabase.rpc('increase_project_budget', {
+        p_project_id: projectId,
+        p_amount: Number(amount),
+        p_user_id: userId
+      });
+      if (error) {
+        console.error('Error increasing project budget:', error);
+        throw error;
+      }
+      return true;
+    },
+    // editar aumento de presupuesto de un proyecto (asociado al usuario claro)
+    editProjectBudgetIncrease: async ({ increaseId, projectId, amount, userId }) => {
+      const { error } = await supabase.rpc('edit_project_budget_increase_v2', {
+        p_increase_id: increaseId,
+        p_project_id: projectId,
+        p_amount: Number(amount),
+        p_user_id: userId
+      });
+      if (error) {
+        console.error('Error editing project budget increase:', error);
+        throw error;
+      }
+      return true;
+    },
+
+    // Obtener todos los proyectos archivados (ingresos)
+    getArchivedProjectsSummary: async () => {
+      const { data, error } = await supabase
+        .from('archived_projects_summary')
+        .select('*');
+      if (error) {
+        console.error('Error fetching archived projects summary:', error);
+        throw error;
+      }
+      return data;
+    },
+
+    // Obtener proyectos archivados del usuario logeado (ingresos)
+    getUserArchivedProjectsSummary: async (userId) => {
+      const { data, error } = await supabase
+        .from('user_archived_projects_summary')
+        .select('*')
+        .eq('user_id', userId);
+      if (error) {
+        console.error('Error fetching user archived projects summary:', error);
+        throw error;
+      }
+      return data;
+    },
 
     // Vista Resumen financiero de Proyectos
     getProjectFinancialOverview: async (userId) => {

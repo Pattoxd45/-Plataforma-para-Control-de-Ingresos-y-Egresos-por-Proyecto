@@ -231,48 +231,6 @@ WHERE
     t.type = 'egreso'
     AND t.deleted_at IS NULL
     AND p.status = 'activo';
-
--- Vista para visualizar ingresos por proyecto, mostrando la diferencia entre presupuesto y gastos
-CREATE OR REPLACE VIEW public.project_ingresos_view AS
-SELECT
-    p.id AS project_id,
-    p.name AS proyecto,
-    (p.budget - COALESCE(SUM(CASE WHEN t.type = 'egreso' THEN t.amount ELSE 0 END), 0)) AS monto,
-    p.created_at::date AS fecha,
-    p.description AS descripcion,
-    u.email AS responsable
-FROM
-    public.projects p
-LEFT JOIN
-    public.transactions t ON p.id = t.project_id AND t.deleted_at IS NULL
-JOIN
-    auth.users u ON p.user_id = u.id
-WHERE
-    p.status = 'activo'
-GROUP BY
-    p.id, p.name, p.budget, p.created_at, p.description, u.email;
-
--- Vistas para visualizar ingresos de todos los proyectos de un usuario
-CREATE OR REPLACE VIEW public.user_projects_ingresos_view AS
-SELECT
-    p.user_id,
-    u.email AS responsable,
-    p.id AS project_id,
-    p.name AS proyecto,
-    (p.budget - COALESCE(SUM(CASE WHEN t.type = 'egreso' THEN t.amount ELSE 0 END), 0)) AS monto,
-    p.created_at::date AS fecha,
-    p.description AS descripcion
-FROM
-    public.projects p
-LEFT JOIN
-    public.transactions t ON p.id = t.project_id AND t.deleted_at IS NULL
-JOIN
-    auth.users u ON p.user_id = u.id
-WHERE
-    p.status = 'activo'
-GROUP BY
-    p.user_id, u.email, p.id, p.name, p.budget, p.created_at, p.description;
-
 -- Vista para obtener un resumen financiero de proyectos, incluyendo presupuesto, gastos y responsable
 CREATE OR REPLACE VIEW public.project_financial_overview AS
 SELECT
@@ -301,3 +259,89 @@ WHERE
     p.status = 'activo'
 GROUP BY
     p.id, p.user_id, p.name, p.description, p.budget, p.deadline, u.email;
+
+-- Vista de ingresos por proyecto (solo aumentos de presupuesto)
+CREATE OR REPLACE VIEW public.project_ingresos_view AS
+SELECT
+    p.id AS project_id,
+    p.name AS proyecto,
+    COALESCE((SELECT SUM(amount) FROM public.project_budget_increases WHERE project_id = p.id), 0) AS monto,
+    p.created_at::date AS fecha,
+    p.description AS descripcion,
+    u.email AS responsable
+FROM
+    public.projects p
+JOIN
+    auth.users u ON p.user_id = u.id
+WHERE
+    p.status = 'activo';
+
+-- Vista de ingresos de todos los proyectos de un usuario (solo aumentos de presupuesto)
+CREATE OR REPLACE VIEW public.user_projects_ingresos_view AS
+SELECT
+    p.user_id,
+    u.email AS responsable,
+    p.id AS project_id,
+    p.name AS proyecto,
+    COALESCE((SELECT SUM(amount) FROM public.project_budget_increases WHERE project_id = p.id), 0) AS monto,
+    p.created_at::date AS fecha,
+    p.description AS descripcion
+FROM
+    public.projects p
+JOIN
+    auth.users u ON p.user_id = u.id
+WHERE
+    p.status = 'activo';
+
+-- Vista para listar los aumentos individuales de presupuesto por proyecto
+CREATE OR REPLACE VIEW public.project_budget_increases_view AS
+SELECT
+    id AS increase_id,
+    project_id,
+    amount,
+    increased_at AS created_at,
+    user_id
+FROM
+    public.project_budget_increases;
+
+-- Vista para mostrar proyectos archivados con nombre, fecha de término, categoría, responsable y balance final desde current_balance
+CREATE OR REPLACE VIEW public.archived_projects_summary AS
+SELECT
+    p.id AS project_id,
+    p.name AS nombre_proyecto,
+    p.deadline AS fecha_termino,
+    STRING_AGG(DISTINCT t.category, ', ') FILTER (WHERE t.category IS NOT NULL) AS categorias,
+    u.email AS responsable,
+    p.current_balance AS balance_final
+FROM
+    public.projects p
+LEFT JOIN
+    public.transactions t ON p.id = t.project_id AND t.deleted_at IS NULL
+JOIN
+    auth.users u ON p.user_id = u.id
+WHERE
+    p.status = 'archivado'
+GROUP BY
+    p.id, p.name, p.deadline, u.email, p.current_balance;
+
+-- Vista para mostrar proyectos archivados de un usuario específico usando current_balance
+CREATE OR REPLACE VIEW public.user_archived_projects_summary AS
+SELECT
+    p.id AS project_id,
+    p.user_id,
+    p.name AS nombre_proyecto,
+    p.deadline AS fecha_termino,
+    STRING_AGG(DISTINCT t.category, ', ') FILTER (WHERE t.category IS NOT NULL) AS categorias,
+    u.email AS responsable,
+    p.current_balance AS balance_final
+FROM
+    public.projects p
+LEFT JOIN
+    public.transactions t ON p.id = t.project_id AND t.deleted_at IS NULL
+JOIN
+    auth.users u ON p.user_id = u.id
+WHERE
+    p.status = 'archivado'
+GROUP BY
+    p.id, p.user_id, p.name, p.deadline, u.email, p.current_balance;
+

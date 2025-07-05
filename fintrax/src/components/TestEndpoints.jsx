@@ -18,15 +18,32 @@ function TestEndpoints({ user }) {
   const [financialOverviewModalOpen, setFinancialOverviewModalOpen] = useState(false);
   const [projects, setProjects] = useState([]);
   const [selectedProjectId, setSelectedProjectId] = useState('');
+  const [editIncreaseModalOpen, setEditIncreaseModalOpen] = useState(false);
+  const [editIncreaseForm, setEditIncreaseForm] = useState({increaseId: '',projectId: '',amount: ''});
   const [increaseBudgetModalOpen, setIncreaseBudgetModalOpen] = useState(false);
-  const [increaseBudgetForm, setIncreaseBudgetForm] = useState({
-    projectId: '',
-    amount: ''
-  });
+  const [increaseBudgetForm, setIncreaseBudgetForm] = useState({projectId: '',amount: ''});
+  const [budgetIncreases, setBudgetIncreases] = useState([]);
+  const [budgetIncreasesModalOpen, setBudgetIncreasesModalOpen] = useState(false);
 
   const userId = user?.id;
 
-  
+  const handleGetProjectBudgetIncreases = async () => {
+  if (!selectedProjectId) {
+    setOutput('Selecciona un proyecto para ver sus aumentos de presupuesto.');
+    return;
+  }
+  setLoading(true);
+  try {
+    const data = await endpoints.projects.getProjectBudgetIncreases(selectedProjectId);
+    setBudgetIncreases(data || []);
+    setBudgetIncreasesModalOpen(true);
+    setOutput(JSON.stringify(data, null, 2));
+  } catch (e) {
+    setOutput(e.message);
+  }
+  setLoading(false);
+};
+
   const [form, setForm] = useState({
     id: '',
     name: '',
@@ -79,6 +96,36 @@ function TestEndpoints({ user }) {
     }
     setLoading(false);
   };
+  // Handler para obtener ingresos de un proyecto
+  const handleGetProjectIngresos = async () => {
+    if (!selectedProjectId) {
+      setOutput('Selecciona un proyecto para ver sus ingresos.');
+      return;
+    }
+    setLoading(true);
+    try {
+      const data = await endpoints.projects.getProjectIngresos(selectedProjectId);
+      setIngresos([data] || []);
+      setIngresosModalOpen(true);
+      setOutput(JSON.stringify(data, null, 2));
+    } catch (e) {
+      setOutput(e.message);
+    }
+    setLoading(false);
+  };
+  // Handler para obtener ingresos de todos los proyectos del usuario
+  const handleGetUserProjectsIngresos = async () => {
+    setLoading(true);
+    try {
+      const data = await endpoints.projects.getUserProjectsIngresos(userId);
+      setIngresos(data || []);
+      setIngresosModalOpen(true);
+      setOutput(JSON.stringify(data, null, 2));
+    } catch (e) {
+      setOutput(e.message);
+    }
+    setLoading(false);
+  };
   // Handler para abrir el modal
   const openIncreaseBudgetModal = () => {
     setIncreaseBudgetForm({ projectId: '', amount: '' });
@@ -94,12 +141,11 @@ function TestEndpoints({ user }) {
     }
     setLoading(true);
     try {
-      const { error } = await supabase.rpc('increase_project_budget', {
-        p_project_id: increaseBudgetForm.projectId,
-        p_amount: Number(increaseBudgetForm.amount),
-        p_user_id: userId
+      await endpoints.projects.increaseProjectBudget({
+        projectId: increaseBudgetForm.projectId,
+        amount: increaseBudgetForm.amount,
+        userId: userId
       });
-      if (error) throw error;
       setOutput('Presupuesto aumentado correctamente.');
       setIncreaseBudgetModalOpen(false);
       handleGetUserProjectsSummary(); // Refrescar lista
@@ -321,10 +367,50 @@ const openEditModal = async () => {
     }
     setLoading(false);
   };
+  // =========================================================
+  // Handlers para guardar edicion de incremento de presupuesto
+  // =========================================================
+  const handleSubmitEditIncrease = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    // console.log('Edit Increase Form:', editIncreaseForm);
+    console.log('Enviando a editProjectBudgetIncrease:', {
+    increaseId: editIncreaseForm.increaseId,
+    projectId: editIncreaseForm.projectId,
+    amount: editIncreaseForm.amount,
+    userId: userId
+  });
+    try {
+      await endpoints.projects.editProjectBudgetIncrease({
+        increaseId: editIncreaseForm.increaseId,
+        projectId: editIncreaseForm.projectId,
+        amount: editIncreaseForm.amount,
+        userId: userId
+      });
+      setOutput('Aumento de presupuesto editado correctamente.');
+      setEditIncreaseModalOpen(false);
+      handleGetProjectIngresos(); // refresca ingresos del proyecto
+    } catch (e) {
+      setOutput(e.message);
+    }
+    setLoading(false);
+  };
 
   const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value });
   const handleEgresoChange = e => setEgresoForm({ ...egresoForm, [e.target.name]: e.target.value });
 
+
+  // =========================================================
+  // Abrir modal para editar aumento de presupuesto
+  // =========================================================
+  const openEditIncreaseModal = (increase) => {
+    setEditIncreaseForm({
+      increaseId: increase.increase_id,
+      projectId: increase.project_id,
+      amount: increase.amount
+    });
+    setEditIncreaseModalOpen(true);
+  };
 
   // =========================================================
   return (
@@ -372,6 +458,64 @@ const openEditModal = async () => {
           disabled={loading || projects.length === 0}
         >
           Aumentar Presupuesto
+        </button>
+        <button
+          onClick={handleGetProjectIngresos}
+          className="test-endpoints-btn"
+          style={{ width: '100%', padding: 12, fontSize: 16, marginBottom: 12, background: '#16a085', color: '#fff' }}
+          disabled={!selectedProjectId || loading}
+        >
+          Ver Ingresos del Proyecto
+        </button>
+        <button
+          onClick={handleGetUserProjectsIngresos}
+          className="test-endpoints-btn"
+          style={{ width: '100%', padding: 12, fontSize: 16, marginBottom: 12, background: '#2980b9', color: '#fff' }}
+          disabled={loading || !userId}
+        >
+          Ver Ingresos de Todos Mis Proyectos
+        </button>
+        <button
+          onClick={handleGetProjectBudgetIncreases}
+          className="test-endpoints-btn"
+          style={{ width: '100%', padding: 12, fontSize: 16, marginBottom: 12, background: '#f1c40f', color: '#fff' }}
+          disabled={!selectedProjectId || loading}
+        >
+          Ver Aumentos de Presupuesto
+        </button>
+        <button
+          onClick={async () => {
+            setLoading(true);
+            try {
+              const data = await endpoints.projects.getArchivedProjectsSummary();
+              setOutput(JSON.stringify(data, null, 2));
+            } catch (e) {
+              setOutput(e.message);
+            }
+            setLoading(false);
+          }}
+          className="test-endpoints-btn"
+          style={{ width: '100%', padding: 12, fontSize: 16, marginBottom: 12, background: '#7f8c8d', color: '#fff' }}
+          disabled={loading}
+        >
+          Ver Todos los Proyectos Archivados (ingresos)
+        </button>
+        <button
+          onClick={async () => {
+            setLoading(true);
+            try {
+              const data = await endpoints.projects.getUserArchivedProjectsSummary(userId);
+              setOutput(JSON.stringify(data, null, 2));
+            } catch (e) {
+              setOutput(e.message);
+            }
+            setLoading(false);
+          }}
+          className="test-endpoints-btn"
+          style={{ width: '100%', padding: 12, fontSize: 16, marginBottom: 12, background: '#34495e', color: '#fff' }}
+          disabled={loading || !userId}
+        >
+          Ver Mis Proyectos Archivados (ingresos)
         </button>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
           <select
@@ -609,10 +753,11 @@ const openEditModal = async () => {
               <thead>
                 <tr>
                   <th>Proyecto</th>
-                  <th>Monto</th>
+                  <th>Monto Ingreso</th>
                   <th>Fecha</th>
                   <th>Descripción</th>
                   <th>Responsable</th>
+                  <th>Acciones</th>
                 </tr>
               </thead>
               <tbody>
@@ -623,6 +768,14 @@ const openEditModal = async () => {
                     <td>{i.fecha}</td>
                     <td>{i.descripcion}</td>
                     <td>{i.responsable}</td>
+                    <td>
+                      <button
+                        style={{ fontSize: 12, padding: '4px 8px' }}
+                        onClick={() => openEditIncreaseModal(i)}
+                      >
+                        Editar
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -701,6 +854,57 @@ const openEditModal = async () => {
             {loading ? 'Aumentando...' : 'Aumentar Presupuesto'}
           </button>
         </form>
+      </CustomModal>
+      <CustomModal open={editIncreaseModalOpen} onClose={() => setEditIncreaseModalOpen(false)} title="Editar Aumento de Presupuesto">
+        <form className="test-endpoints-form" onSubmit={handleSubmitEditIncrease}>
+          <div>
+            <label>Monto:</label>
+            <input
+              name="amount"
+              type="number"
+              value={editIncreaseForm.amount}
+              onChange={e => setEditIncreaseForm({ ...editIncreaseForm, amount: e.target.value })}
+              required
+              style={{ width: '100%' }}
+            />
+          </div>
+          <button type="submit" disabled={loading} style={{ marginTop: 16, width: '100%' }}>
+            {loading ? 'Guardando...' : 'Guardar Cambios'}
+          </button>
+        </form>
+      </CustomModal>
+      <CustomModal open={budgetIncreasesModalOpen} onClose={() => setBudgetIncreasesModalOpen(false)} title="Aumentos de Presupuesto del Proyecto">
+  <div style={{ maxHeight: 400, overflowY: 'auto' }}>
+    {budgetIncreases.length === 0 ? (
+      <p>No hay aumentos registrados para este proyecto.</p>
+    ) : (
+      <table style={{ width: '100%', fontSize: 14 }}>
+        <thead>
+          <tr>
+            <th>Monto</th>
+            <th>Fecha</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {budgetIncreases.map(inc => (
+            <tr key={inc.increase_id}>
+              <td>{inc.amount}</td>
+              <td>{inc.created_at ? inc.created_at.split('T')[0] : ''}</td>
+              <td>
+                <button
+                  style={{ fontSize: 12, padding: '4px 8px' }}
+                  onClick={() => openEditIncreaseModal(inc)}
+                >
+                  Editar
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    )}
+  </div>
       </CustomModal>
 
       <div style={{ marginTop: 16 }}>
