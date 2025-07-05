@@ -272,3 +272,32 @@ WHERE
     p.status = 'activo'
 GROUP BY
     p.user_id, u.email, p.id, p.name, p.budget, p.created_at, p.description;
+
+-- Vista para obtener un resumen financiero de proyectos, incluyendo presupuesto, gastos y responsable
+CREATE OR REPLACE VIEW public.project_financial_overview AS
+SELECT
+    p.id AS project_id,
+    p.user_id,
+    p.name AS nombre_proyecto,
+    p.description AS descripcion,
+    p.budget AS presupuesto_inicial,
+    COALESCE(SUM(CASE WHEN t.type = 'egreso' THEN t.amount ELSE 0 END), 0) AS gastos,
+    (
+        p.budget
+        + COALESCE((SELECT SUM(amount) FROM public.project_budget_increases WHERE project_id = p.id), 0)
+        - COALESCE(SUM(CASE WHEN t.type = 'egreso' THEN t.amount ELSE 0 END), 0)
+    ) AS presupuesto_actual,
+    COALESCE((SELECT SUM(amount) FROM public.project_budget_increases WHERE project_id = p.id), 0) AS total_aumentos_presupuesto, -- <--- NUEVO
+    p.deadline AS fecha_termino,
+    STRING_AGG(DISTINCT t.category, ', ') FILTER (WHERE t.category IS NOT NULL) AS categorias,
+    u.email AS responsable
+FROM
+    public.projects p
+LEFT JOIN
+    public.transactions t ON p.id = t.project_id AND t.deleted_at IS NULL
+JOIN
+    auth.users u ON p.user_id = u.id
+WHERE
+    p.status = 'activo'
+GROUP BY
+    p.id, p.user_id, p.name, p.description, p.budget, p.deadline, u.email;

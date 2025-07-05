@@ -383,3 +383,22 @@ BEGIN
       AND deleted_at IS NULL;
 END;
 $$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE FUNCTION public.increase_project_budget(
+    p_project_id UUID,
+    p_amount NUMERIC,
+    p_user_id UUID
+)
+RETURNS VOID AS $$
+BEGIN
+    -- Registrar el aumento en la nueva tabla
+    INSERT INTO public.project_budget_increases (project_id, amount, user_id)
+    VALUES (p_project_id, p_amount, p_user_id);
+
+    -- Actualizar el balance actual del proyecto
+    UPDATE public.projects
+    SET current_balance = current_balance + p_amount
+    WHERE id = p_project_id;
+END;
+$$ LANGUAGE plpgsql;

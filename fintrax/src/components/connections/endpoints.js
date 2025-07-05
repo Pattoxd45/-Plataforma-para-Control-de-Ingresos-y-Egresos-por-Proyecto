@@ -28,9 +28,9 @@ export const endpoints = {
     // Obtener detalles de un proyecto específico
     getProjectDetails: async (projectId) => {
       const { data, error } = await supabase
-        .from('project_details')
+        .from('project_financial_overview')
         .select('*')
-        .eq('id', projectId)
+        .eq('project_id', projectId)
         .single();
       if (error) {
         console.error('Error fetching project details:', error);
@@ -133,40 +133,23 @@ export const endpoints = {
         throw error;
       }
       return data;
+    },     
+    // ============================================================
+    // Manejo de Ingresos
+    // ============================================================
+    // Obtener ingresos de un proyecto
+    getProjectIngresos: async (projectId) => {
+      const { data, error } = await supabase
+        .from('project_ingresos_view')
+        .select('*')
+        .eq('project_id', projectId)
+        .single();
+      if (error) {
+        console.error('Error fetching project ingresos:', error);
+        throw error;
+      }
+      return data;
     },
-        // ============================================================
-    // Manejo de Ingresos
-    // ============================================================
-    // Obtener ingresos de un proyecto
-    getProjectIngresos: async (projectId) => {
-      const { data, error } = await supabase
-        .from('project_ingresos_view')
-        .select('*')
-        .eq('project_id', projectId)
-        .single();
-      if (error) {
-        console.error('Error fetching project ingresos:', error);
-        throw error;
-      }
-      return data;
-    },    
-    
-    // ============================================================
-    // Manejo de Ingresos
-    // ============================================================
-    // Obtener ingresos de un proyecto
-    getProjectIngresos: async (projectId) => {
-      const { data, error } = await supabase
-        .from('project_ingresos_view')
-        .select('*')
-        .eq('project_id', projectId)
-        .single();
-      if (error) {
-        console.error('Error fetching project ingresos:', error);
-        throw error;
-      }
-      return data;
-    }, 
     // Editar un ingreso existente  
     getUserProjectsIngresos: async (userId) => {
       const { data, error } = await supabase
@@ -178,6 +161,21 @@ export const endpoints = {
         throw error;
       }
       return data;
-    }, 
+    },
+    // Agregar un nuevo ingreso a un proyecto 
+
+    // Vista Resumen financiero de Proyectos
+    getProjectFinancialOverview: async (userId) => {
+      const { data, error } = await supabase
+        .from('project_financial_overview')
+        .select('*')
+        .eq('user_id', userId);
+      if (error) {
+        console.error('Error fetching project financial overview:', error);
+        throw error;
+      }
+      return data;
+    },
+
   }
 };
