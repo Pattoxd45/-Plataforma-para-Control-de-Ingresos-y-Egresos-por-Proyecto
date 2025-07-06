@@ -15,6 +15,7 @@ import RecoverPassword from './components/recuperarContrasena'; // Importar la p
 import ConfirmacionRecuperacion from './components/ConfirmacionRecuperacion';
 import TestEndpoints from './components/TestEndpoints';
 import useCurrentUser from './components/hooks/useCurrentUser';
+import './styles/app.css';
 
 
 function App() {
