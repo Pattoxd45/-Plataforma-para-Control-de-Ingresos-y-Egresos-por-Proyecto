@@ -183,4 +183,17 @@ export const endpoints = {
         return data;
     },
     },
+    // Sección agregada para usuarios
+    users: {
+      update: async (id, updates) => {
+        const { data, error } = await supabase.from('users').update(updates).eq('id', id);
+        if (error) throw error;
+        return data;
+      },
+      changePassword: async (newPassword) => {
+        const { data, error } = await supabase.auth.updateUser({ password: newPassword });
+        if (error) throw error;
+        return data;
+      }
+    }
 };
