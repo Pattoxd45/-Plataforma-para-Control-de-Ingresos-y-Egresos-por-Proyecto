@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { endpoints } from '../connections/endpoints';
+import { endpoints } from '<source />/connections/endpoints';
 import '../styles/reportes.css';
 
 const Reportes = () => {
