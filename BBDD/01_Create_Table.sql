@@ -1,6 +1,4 @@
-CREATE SCHEMA fintrax;
-
-CREATE TABLE fintrax.projects (
+CREATE TABLE public.projects (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
     name TEXT NOT NULL,
@@ -11,9 +9,9 @@ CREATE TABLE fintrax.projects (
     status TEXT DEFAULT 'activo' CHECK (status IN ('activo', 'archivado'))
 );
 
-CREATE TABLE fintrax.transactions (
+CREATE TABLE public.transactions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    project_id UUID REFERENCES fintrax.projects(id) ON DELETE CASCADE,
+    project_id UUID REFERENCES public.projects(id) ON DELETE CASCADE,
     amount NUMERIC NOT NULL,
     date TIMESTAMPTZ NOT NULL,
     description TEXT,
@@ -27,9 +25,9 @@ CREATE TABLE fintrax.transactions (
     tags TEXT[]
 );
 
-CREATE TABLE fintrax.transactions_log (
+CREATE TABLE public.transactions_log (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    transaction_id UUID REFERENCES fintrax.transactions(id) ON DELETE CASCADE,
+    transaction_id UUID REFERENCES public.transactions(id) ON DELETE CASCADE,
     user_id UUID REFERENCES auth.users(id),
     change_type TEXT CHECK (change_type IN ('update', 'delete')),
     old_values JSONB,
@@ -38,17 +36,17 @@ CREATE TABLE fintrax.transactions_log (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE TABLE fintrax.categories (
+CREATE TABLE public.categories (
     id SERIAL PRIMARY KEY,
     name TEXT NOT NULL UNIQUE,
     description TEXT,
-    parent_id INT REFERENCES fintrax.categories(id)
+    parent_id INT REFERENCES public.categories(id)
 );
 
-CREATE TABLE fintrax.reports (
+CREATE TABLE public.reports (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID REFERENCES auth.users(id),
-    project_id UUID REFERENCES fintrax.projects(id),
+    project_id UUID REFERENCES public.projects(id),
     report_type TEXT CHECK (report_type IN ('balance', 'summary')),    
     generated_at TIMESTAMPTZ DEFAULT NOW(),
     status TEXT DEFAULT 'generado' CHECK (status IN ('en_proceso', 'generado', 'fallido')),
@@ -56,7 +54,7 @@ CREATE TABLE fintrax.reports (
     data JSONB
 );
 
-CREATE TABLE fintrax.user_profiles (
+CREATE TABLE public.user_profiles (
     user_id UUID PRIMARY KEY REFERENCES auth.users(id),
     role TEXT CHECK (role IN ('admin', 'user')),
     preferences JSONB,
@@ -64,7 +62,7 @@ CREATE TABLE fintrax.user_profiles (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE TABLE fintrax.notifications (
+CREATE TABLE public.notifications (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID REFERENCES auth.users(id),
     message TEXT NOT NULL,
@@ -75,17 +73,17 @@ CREATE TABLE fintrax.notifications (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 -- opcional: tabla para adjuntos de transacciones
-CREATE TABLE fintrax.attachments (
+CREATE TABLE public.attachments (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    project_id UUID REFERENCES fintrax.projects(id),
-    transaction_id UUID REFERENCES fintrax.transactions(id),
+    project_id UUID REFERENCES public.projects(id),
+    transaction_id UUID REFERENCES public.transactions(id),
     file_type TEXT NOT NULL,
     file_name TEXT NOT NULL,
     file_url TEXT NOT NULL,
     uploaded_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE TABLE fintrax.access_logs (
+CREATE TABLE public.access_logs (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID REFERENCES auth.users(id),
     accessed_at TIMESTAMPTZ DEFAULT NOW(),
@@ -94,7 +92,7 @@ CREATE TABLE fintrax.access_logs (
     action TEXT CHECK (action IN ('login', 'logout', 'view_project', 'view_transaction', 'create_transaction', 'update_transaction', 'delete_transaction'))
 );
 
-CREATE TABLE fintrax.failed_logins (
+CREATE TABLE public.failed_logins (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     ip_address TEXT NOT NULL,
     user_agent TEXT NOT NULL,

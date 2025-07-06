@@ -1,0 +1,88 @@
+\section{Código Fuente}
+
+\subsection*{Fragmentos Relevantes}
+A continuación, se presentan fragmentos de código funcionales que son esenciales para el funcionamiento de la plataforma, junto con una breve explicación de su propósito y funcionamiento.
+
+\subsubsection*{Autenticación de Usuarios}
+El siguiente código verifica si un usuario está autenticado y redirige al inicio de sesión si no hay una sesión activa:
+\begin{lstlisting}[language=JavaScript]
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { supabase } from '../connections/endpoints';
+
+const useAuthCheck = () => {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data: session } = await supabase.auth.getSession();
+      if (!session?.session?.user) {
+        navigate('/');
+      }
+    };
+
+    checkSession();
+  }, [navigate]);
+
+  return { logout };
+};
+\end{lstlisting}
+\textbf{Propósito:} Garantizar que solo usuarios autenticados puedan acceder a las funcionalidades de la plataforma.
+\newpage
+\subsubsection*{Gestión de Proyectos}
+Este fragmento obtiene los proyectos asociados al usuario autenticado:
+\begin{lstlisting}[language=JavaScript]
+const fetchProjects = async (userId) => {
+  try {
+    const data = await endpoints.projects.getById(userId);
+    const userProjects = data.filter((project) => project.user_id === userId);
+    setProjects(userProjects);
+  } catch (error) {
+    console.error('Error fetching projects:', error);
+    setErrorMessage('Error inesperado al obtener los proyectos.');
+  } finally {
+    setLoading(false);
+  }
+};
+\end{lstlisting}
+\textbf{Propósito:} Recuperar y mostrar los proyectos del usuario en el frontend.
+
+\subsubsection*{Generación de Reportes Financieros}
+El siguiente código utiliza una función RPC para generar reportes financieros:
+\begin{lstlisting}[language=JavaScript]
+const generateReport = async (projectId, reportType, startDate, endDate) => {
+  const { data, error } = await supabase.rpc('generate_financial_report', {
+    project_id: projectId,
+    report_type: reportType,
+    start_date: startDate,
+    end_date: endDate,
+  });
+  if (error) throw error;
+  return data;
+};
+\end{lstlisting}
+\textbf{Propósito:} Generar reportes financieros personalizados basados en los datos de un proyecto.
+
+\subsubsection*{Validación de Transacciones en la Base de Datos}
+Este trigger en PostgreSQL valida que las transacciones no excedan el presupuesto del proyecto:
+\begin{lstlisting}[language=SQL]
+CREATE OR REPLACE FUNCTION public.validate_transaction_budget()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF (NEW.type = 'egreso') THEN
+        IF (
+            SELECT COALESCE(SUM(CASE WHEN type = 'ingreso' THEN amount ELSE -amount END), 0)
+            FROM public.transactions
+            WHERE project_id = NEW.project_id AND deleted_at IS NULL
+        ) < NEW.amount THEN
+            RAISE EXCEPTION 'El monto excede el presupuesto del proyecto.';
+        END IF;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+\end{lstlisting}
+\textbf{Propósito:} Garantizar que las transacciones de tipo "egreso" no superen el presupuesto disponible del proyecto.
+
+\subsection*{Conclusión}
+Estos fragmentos de código representan las funcionalidades clave de la plataforma, desde la autenticación de usuarios hasta la gestión de proyectos y validaciones en la base de datos. Cada uno de ellos contribuye al correcto funcionamiento del sistema y asegura la integridad de los datos.
