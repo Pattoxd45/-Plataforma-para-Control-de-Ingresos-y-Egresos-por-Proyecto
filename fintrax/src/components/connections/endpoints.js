@@ -13,6 +13,22 @@ export const endpoints = {
     // ============================================================
     // Endpoints para manejar proyectos
     // ============================================================
+    // Crear un nuevo proyecto
+    createProject: async (project) => {
+      const { data, error } = await supabase.rpc('create_project', {
+        p_user_id: project.user_id,
+        p_name: project.name,
+        p_description: project.description,
+        p_budget: Number(project.budget),
+        p_deadline: project.deadline ? new Date(project.deadline).toISOString() : null,
+        p_status: project.status
+      });
+      if (error) {
+        console.error('Error creating project:', error);
+        throw error;
+      }
+      return data;
+    },
     // Obtener todos los proyectos (usando la vista project_status_summary)
     getUserProjectsSummary: async (userId) => {
       const { data, error } = await supabase

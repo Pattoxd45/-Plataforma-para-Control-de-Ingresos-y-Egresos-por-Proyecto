@@ -304,25 +304,23 @@ SELECT
 FROM
     public.project_budget_increases;
 
--- Vista para mostrar proyectos archivados con nombre, fecha de término, categoría, responsable y balance final desde current_balance
+-- Vista para mostrar proyectos archivados con nombre, fecha de término, descripción, responsable y balance final desde current_balance
 CREATE OR REPLACE VIEW public.archived_projects_summary AS
 SELECT
     p.id AS project_id,
     p.name AS nombre_proyecto,
     p.deadline AS fecha_termino,
-    STRING_AGG(DISTINCT t.category, ', ') FILTER (WHERE t.category IS NOT NULL) AS categorias,
+    p.description AS descripcion, -- Usar la descripción del proyecto en vez de categorías
     u.email AS responsable,
     p.current_balance AS balance_final
 FROM
     public.projects p
-LEFT JOIN
-    public.transactions t ON p.id = t.project_id AND t.deleted_at IS NULL
 JOIN
     auth.users u ON p.user_id = u.id
 WHERE
     p.status = 'archivado'
 GROUP BY
-    p.id, p.name, p.deadline, u.email, p.current_balance;
+    p.id, p.name, p.deadline, p.description, u.email, p.current_balance;
 
 -- Vista para mostrar proyectos archivados de un usuario específico usando current_balance
 CREATE OR REPLACE VIEW public.user_archived_projects_summary AS

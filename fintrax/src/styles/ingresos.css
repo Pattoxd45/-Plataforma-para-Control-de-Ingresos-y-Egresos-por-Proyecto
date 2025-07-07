@@ -4,6 +4,12 @@
   min-height: 80vh;
 }
 
+.buscador-ingresos {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
 .ingresos-container h1 {
   font-size: 2rem;
   color: #2c3e50;
@@ -59,9 +65,10 @@
 }
 
 /* CELDAS */
-.tabla td {
-  padding: 0.75rem;
-  border-top: 1px solid #eee;
+.tabla td, .tabla th {
+  text-align: justify;
+  vertical-align: middle;
+  padding: 8px;
 }
 
 /* FILAS ALTERNADAS */
