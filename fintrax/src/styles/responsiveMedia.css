@@ -1,0 +1,55 @@
+/* Responsive para pantallas pequeñas */
+@media (max-width: 768px) {
+  .recover-password-form {
+    padding: 15px;
+  }
+
+  .recover-password-form h2 {
+    font-size: 1.3rem;
+  }
+
+  .form-group label {
+    font-size: 0.8rem;
+  }
+
+  .form-group input {
+    font-size: 0.9rem;
+  }
+
+  button {
+    font-size: 0.9rem;
+  }
+
+  .error-message,
+  .success-message {
+    font-size: 0.8rem;
+  }
+}
+
+/* Responsive para pantallas muy pequeñas (teléfonos) */
+@media (max-width: 480px) {
+  .recover-password-form {
+    padding: 10px;
+  }
+
+  .recover-password-form h2 {
+    font-size: 1.2rem;
+  }
+
+  .form-group label {
+    font-size: 0.7rem;
+  }
+
+  .form-group input {
+    font-size: 0.8rem;
+  }
+
+  button {
+    font-size: 0.8rem;
+  }
+
+  .error-message,
+  .success-message {
+    font-size: 0.7rem;
+  }
+}

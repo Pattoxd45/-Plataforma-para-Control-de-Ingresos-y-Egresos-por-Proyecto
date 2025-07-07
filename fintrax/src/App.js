@@ -13,18 +13,20 @@ import Proyectos from './components/proyectos';
 import Register from './components/Registrarse';
 import RecoverPassword from './components/recuperarContrasena'; // Importar la página de recuperación de contraseña
 import ConfirmacionRecuperacion from './components/ConfirmacionRecuperacion';
+import TestEndpoints from './components/TestEndpoints';
+import useCurrentUser from './components/hooks/useCurrentUser';
+import './styles/app.css';
 
 
 function App() {
-  const location = useLocation();
-
-  const hideMenuRoutes = ['/Registrarse', '/Recuperar_Contrasena', '/ConfirmacionRecuperacion', '/'];
-
-  const isMenuVisible = !hideMenuRoutes.includes(location.pathname);
+  const location = useLocation(); // Hook para obtener la ruta actual
+  const user = useCurrentUser(); // <--- Aquí obtienes el usuario logeado
+  const hideMenuRoutes = ['/Registrarse', '/Recuperar_Contrasena','/ConfirmacionRecuperacion', '/']; // Rutas donde no se debe mostrar el menú
 
   return (
-    <div className={`app-container ${isMenuVisible ? 'menu-visible' : 'menu-hidden'}`}>
-      {isMenuVisible && <Menu />}
+    <div className="app-container">
+      {/* Renderizar el menú solo si no estamos en la ruta del login */}
+      {!hideMenuRoutes.includes(location.pathname) && <Menu />}
       <main className="main-content">
         <Routes>
           <Route path="/" element={<Login />} />
@@ -35,9 +37,10 @@ function App() {
           <Route path="/perfil" element={<Perfil />} />
           <Route path="/about" element={<About />} />
           <Route path="/Proyectos" element={<Proyectos />} />
-          <Route path="/Registrarse" element={<Register />} />
-          <Route path="/Recuperar_Contrasena" element={<RecoverPassword />} />
-          <Route path="/ConfirmacionRecuperacion" element={<ConfirmacionRecuperacion />} />
+          <Route path="/Registrarse" element={<Register />} /> {/* Ruta para registro */}
+          <Route path="/Recuperar_Contrasena" element={<RecoverPassword />} /> {/* Ruta para recuperación de contraseña */}
+          <Route path="/ConfirmacionRecuperacion" element={<ConfirmacionRecuperacion />} />        
+          <Route path="/test" element={<TestEndpoints user={user} />} />
         </Routes>
       </main>
       <Copyright />

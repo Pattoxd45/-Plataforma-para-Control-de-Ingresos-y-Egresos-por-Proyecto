@@ -10,190 +10,251 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 // Endpoints organizados
 export const endpoints = {
   projects: {
-    // Obtener todos los proyectos
-    // Retorna una lista de todos los proyectos disponibles en la tabla `projects`.
-    getAll: async () => {
-      const { data, error } = await supabase.from('projects').select('*');
-      if (error) {
-        console.error('Error fetching projects:', error);
-        throw error;
-      }
-      console.log('Fetched projects:', data);
-      return data;
-    },
-
-    // Obtener un proyecto por su ID
-    // Retorna los detalles de un proyecto específico basado en su ID.
-    getById: async (id) => {
-      const { data, error } = await supabase.from('projects').select('*').eq('user_id', id);
-      if (error) {
-        console.error('Error fetching projects:', error);
-        throw error;
-      }
-      return data;
-    },
-
+    // ============================================================
+    // Endpoints para manejar proyectos
+    // ============================================================
     // Crear un nuevo proyecto
-    // Inserta un nuevo proyecto en la tabla `projects`.
-    create: async (project) => {
-      const { data, error } = await supabase.from('projects').insert([project]);
-      if (error) throw error;
-      return data;
-    },
-
-    // Actualizar un proyecto existente
-    // Actualiza los campos de un proyecto específico basado en su ID.
-    update: async (id, updates) => {
-      const { data, error } = await supabase.from('projects').update(updates).eq('id', id);
-      if (error) throw error;
-      return data;
-    },
-
-    // Eliminar un proyecto
-    // Elimina un proyecto específico basado en su ID.
-    delete: async (id) => {
-      const { data, error } = await supabase.from('projects').delete().eq('id', id);
-      if (error) throw error;
-      return data;
-    },
-  },
-  transactions: {
-    // Obtener todas las transacciones
-    // Retorna una lista de todas las transacciones disponibles en la tabla `transactions`.
-    getAll: async () => {
-      const { data, error } = await supabase.from('transactions').select('*');
-      if (error) throw error;
-      return data;
-    },
-
-    // Obtener transacciones por ID de proyecto
-    // Retorna todas las transacciones asociadas a un proyecto específico.
-    getByProjectId: async (projectId) => {
-      const { data, error } = await supabase.from('transactions').select('*').eq('project_id', projectId);
-      if (error) throw error;
-      return data;
-    },
-
-    // Crear una nueva transacción
-    // Inserta una nueva transacción en la tabla `transactions`.
-    create: async (transaction) => {
-      const { data, error } = await supabase.from('transactions').insert([transaction]);
-      if (error) throw error;
-      return data;
-    },
-
-    // Actualizar una transacción existente
-    // Actualiza los campos de una transacción específica basado en su ID.
-    update: async (id, updates) => {
-      const { data, error } = await supabase.from('transactions').update(updates).eq('id', id);
-      if (error) throw error;
-      return data;
-    },
-
-    // Eliminar una transacción
-    // Elimina una transacción específica basado en su ID.
-    delete: async (id) => {
-      const { data, error } = await supabase.from('transactions').delete().eq('id', id);
-      if (error) throw error;
-      return data;
-    },
-  },
-    reports: {
-    // Obtener todos los reportes
-    getAll: async () => {
-        const { data, error } = await supabase.from('reports').select('*');
-        if (error) throw error;
-        return data;
-    },
-
-    // Obtener un reporte por su ID
-    getById: async (id) => {
-        const { data, error } = await supabase.from('reports').select('*').eq('id', id).single();
-        if (error) throw error;
-        return data;
-    },
-    generate: async (projectId, reportType, startDate, endDate) => {
-    const { data, error } = await supabase.rpc('generate_financial_report', {
-        project_id: projectId,
-        report_type: reportType,
-        start_date: startDate,
-        end_date: endDate,
-    });
-    if (error) throw error;
-    return data;
-    },
-   },
-   attachments: {
-  // Obtener todos los adjuntos de un proyecto
-  getByProjectId: async (projectId) => {
-    const { data, error } = await supabase.rpc('get_project_attachments', { project_id: projectId });
-    if (error) throw error;
-    return data;
-  },
-
-  // Crear un nuevo adjunto
-  create: async (attachment) => {
-    const { data, error } = await supabase.from('attachments').insert([attachment]);
-    if (error) throw error;
-    return data;
-  },
-},
-    accessLogs: {
-    // Obtener el historial de accesos de un usuario
-    getByUserId: async (userId) => {
-        const { data, error } = await supabase.from('access_logs').select('*').eq('user_id', userId);
-        if (error) throw error;
-        return data;
-    },
-    },
-    categories: {
-    // Obtener todas las categorías
-    getAll: async () => {
-        const { data, error } = await supabase.from('categories').select('*');
-        if (error) throw error;
-        return data;
-    },
-
-    // Crear una nueva categoría
-    create: async (category) => {
-        const { data, error } = await supabase.from('categories').insert([category]);
-        if (error) throw error;
-        return data;
-    },
-    },
-    notifications: {
-    // Obtener todas las notificaciones de un usuario
-    getAll: async (userId) => {
-        const { data, error } = await supabase.from('notifications').select('*').eq('user_id', userId);
-        if (error) throw error;
-        return data;
-    },
-
-    // Marcar notificaciones como leídas
-    markAsRead: async (userId) => {
-        const { data, error } = await supabase.rpc('mark_notifications_as_read', { user_id: userId });
-        if (error) throw error;
-        return data;
-    },
-    },
-    statistics: {
-    getByProjectId: async (projectId) => {
-        const { data, error } = await supabase.rpc('get_project_statistics', { project_id: projectId });
-        if (error) throw error;
-        return data;
-    },
-    },
-    // Sección agregada para usuarios
-    users: {
-      update: async (id, updates) => {
-        const { data, error } = await supabase.from('users').update(updates).eq('id', id);
-        if (error) throw error;
-        return data;
-      },
-      changePassword: async (newPassword) => {
-        const { data, error } = await supabase.auth.updateUser({ password: newPassword });
-        if (error) throw error;
-        return data;
+    createProject: async (project) => {
+      const { data, error } = await supabase.rpc('create_project', {
+        p_user_id: project.user_id,
+        p_name: project.name,
+        p_description: project.description,
+        p_budget: Number(project.budget),
+        p_deadline: project.deadline ? new Date(project.deadline).toISOString() : null,
+        p_status: project.status
+      });
+      if (error) {
+        console.error('Error creating project:', error);
+        throw error;
       }
-    }
+      return data;
+    },
+    // Obtener todos los proyectos (usando la vista project_status_summary)
+    getUserProjectsSummary: async (userId) => {
+      const { data, error } = await supabase
+        .from('user_projects_summary')
+        .select('*')
+        .eq('user_id', userId);
+      if (error) {
+        console.error('Error fetching user projects summary:', error);
+        throw error;
+      }
+      return data;  
+    },
+    // Obtener detalles de un proyecto específico
+    getProjectDetails: async (projectId) => {
+      const { data, error } = await supabase
+        .from('project_financial_overview')
+        .select('*')
+        .eq('project_id', projectId)
+        .single();
+      if (error) {
+        console.error('Error fetching project details:', error);
+        throw error;
+      }
+      return data;
+    },
+    // actualizar un proyecto existente
+    updateProject: async (project) => {
+      const { data, error } = await supabase.rpc('update_project', {
+        p_project_id: project.id,
+        p_user_id: project.user_id,
+        p_name: project.name,
+        p_description: project.description,
+        p_budget: project.budget,
+        p_deadline: project.deadline,
+        p_status: project.status
+      });
+      if (error) {
+        console.error('Error updating project:', error);
+        throw error;
+      }
+      return data;
+    },
+    // =============================================================
+    // Manejo de Egresos
+    // ============================================================
+    // Obtener egresos de un proyecto
+    getProjectEgresos: async (projectId) => {
+      const { data, error } = await supabase
+        .from('project_egresos_view')
+        .select('*')
+        .eq('project_id', projectId);
+      if (error) {
+        console.error('Error fetching project egresos:', error);
+        throw error;
+      }
+      return data;
+    },
+    // Editar un egreso existente
+    editEgreso: async ({
+      transactionId,
+      projectId,
+      amount,
+      date,
+      description,
+      category,
+      currency = 'CLP',
+      payment_method = 'efectivo',
+      tags = null
+    }) => {
+      const { error } = await supabase.rpc('edit_egreso', {
+        p_transaction_id: transactionId,
+        p_project_id: projectId,
+        p_amount: amount !== undefined ? Number(amount) : null,
+        p_date: date ? new Date(date).toISOString() : null,
+        p_description: description ?? null,
+        p_category: category ?? null,
+        p_currency: currency,
+        p_payment_method: payment_method,
+        p_tags: tags && Array.isArray(tags)
+          ? tags
+          : (typeof tags === 'string' && tags.length > 0
+              ? tags.split(',').map(tag => tag.trim())
+              : null)
+      });
+      if (error) {
+        console.error('Error editing egreso:', error);
+        throw error;
+      }
+      return true;
+    },   
+    // Agregar un nuevo egreso a un proyecto
+    addEgreso: async ({
+      projectId,
+      amount,
+      date,
+      description,
+      category,
+      currency = 'CLP',
+      payment_method = 'efectivo',
+      tags = null
+    }) => {
+      const { data, error } = await supabase.rpc('add_egreso', {
+        p_project_id: projectId,
+        p_amount: Number(amount),
+        p_date: date ? new Date(date).toISOString() : new Date().toISOString(),
+        p_description: description,
+        p_category: category || null,
+        p_currency: currency,
+        p_payment_method: payment_method,
+        p_tags: tags && Array.isArray(tags)
+          ? tags
+          : (typeof tags === 'string' && tags.length > 0
+              ? tags.split(',').map(tag => tag.trim())
+              : null)
+      });
+      if (error) {
+        console.error('Error adding egreso:', error);
+        throw error;
+      }
+      return data;
+    },     
+    // ============================================================
+    // Manejo de Ingresos
+    // ============================================================
+    // Obtener ingresos de un proyecto
+    getProjectIngresos: async (projectId) => {
+      const { data, error } = await supabase
+        .from('project_ingresos_view')
+        .select('*')
+        .eq('project_id', projectId)
+        .single();
+      if (error) {
+        console.error('Error fetching project ingresos:', error);
+        throw error;
+      }
+      return data;
+    },
+    // obtener ingresos de un proyecto segun el usuario
+    getUserProjectsIngresos: async (userId) => {
+      const { data, error } = await supabase
+        .from('user_projects_ingresos_view')
+        .select('*')
+        .eq('user_id', userId);
+      if (error) {
+        console.error('Error fetching user projects ingresos:', error);
+        throw error;
+      }
+      return data;
+    },
+    // Endpoint para obtener los aumentos individuales de un proyecto
+    getProjectBudgetIncreases: async (projectId) => {
+      const { data, error } = await supabase
+        .from('project_budget_increases_view')
+        .select('*')
+        .eq('project_id', projectId);
+      if (error) {
+        console.error('Error fetching project budget increases:', error);
+        throw error;
+      }
+      return data;
+    },
+    // Agregar un nuevo aumento de presupuesto a un proyecto 
+    increaseProjectBudget: async ({ projectId, amount, userId }) => {
+      const { error } = await supabase.rpc('increase_project_budget', {
+        p_project_id: projectId,
+        p_amount: Number(amount),
+        p_user_id: userId
+      });
+      if (error) {
+        console.error('Error increasing project budget:', error);
+        throw error;
+      }
+      return true;
+    },
+    // editar aumento de presupuesto de un proyecto (asociado al usuario claro)
+    editProjectBudgetIncrease: async ({ increaseId, projectId, amount, userId }) => {
+      const { error } = await supabase.rpc('edit_project_budget_increase_v2', {
+        p_increase_id: increaseId,
+        p_project_id: projectId,
+        p_amount: Number(amount),
+        p_user_id: userId
+      });
+      if (error) {
+        console.error('Error editing project budget increase:', error);
+        throw error;
+      }
+      return true;
+    },
+
+    // Obtener todos los proyectos archivados (ingresos)
+    getArchivedProjectsSummary: async () => {
+      const { data, error } = await supabase
+        .from('archived_projects_summary')
+        .select('*');
+      if (error) {
+        console.error('Error fetching archived projects summary:', error);
+        throw error;
+      }
+      return data;
+    },
+
+    // Obtener proyectos archivados del usuario logeado (ingresos)
+    getUserArchivedProjectsSummary: async (userId) => {
+      const { data, error } = await supabase
+        .from('user_archived_projects_summary')
+        .select('*')
+        .eq('user_id', userId);
+      if (error) {
+        console.error('Error fetching user archived projects summary:', error);
+        throw error;
+      }
+      return data;
+    },
+
+    // Vista Resumen financiero de Proyectos
+    getProjectFinancialOverview: async (userId) => {
+      const { data, error } = await supabase
+        .from('project_financial_overview')
+        .select('*')
+        .eq('user_id', userId);
+      if (error) {
+        console.error('Error fetching project financial overview:', error);
+        throw error;
+      }
+      return data;
+    },
+
+  }
 };

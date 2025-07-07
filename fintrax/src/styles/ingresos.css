@@ -1,8 +1,13 @@
 .ingresos-container {
   padding: 2rem;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f9f9f9;
   min-height: 80vh;
+}
+
+.buscador-ingresos {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
 }
 
 .ingresos-container h1 {
@@ -60,9 +65,10 @@
 }
 
 /* CELDAS */
-.tabla td {
-  padding: 0.75rem;
-  border-top: 1px solid #eee;
+.tabla td, .tabla th {
+  text-align: justify;
+  vertical-align: middle;
+  padding: 8px;
 }
 
 /* FILAS ALTERNADAS */
@@ -80,4 +86,49 @@
   color: #7f8c8d;
   font-style: italic;
   margin-top: 1rem;
+}
+
+/* Popup de confirmación en la esquina inferior derecha */
+.popup-confirm {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  z-index: 9999;
+  background: rgba(44, 62, 80, 0.95);
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  padding: 0;
+}
+
+.popup-content {
+  padding: 1.5rem 2rem;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.popup-content p {
+  margin: 0 0 1rem 0;
+}
+
+.popup-content button {
+  margin-right: 1rem;
+  margin-bottom: 0.5rem;
+  background: #e74c3c;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1.2rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.2s;
+}
+
+.popup-content button:last-child {
+  background: #7f8c8d;
+}
+
+.popup-content button:hover {
+  opacity: 0.85;
 }
