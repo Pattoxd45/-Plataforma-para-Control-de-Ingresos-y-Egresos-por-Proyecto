@@ -39,7 +39,7 @@ const Menu = () => {
       <ul className={`menu-links ${isOpen ? 'show' : ''}`}>
         <li onClick={() => navigateAndClose('/Proyectos')}>Proyectos</li>
         <li onClick={() => navigateAndClose('/ingresos')}>Ingresos</li>
-        <li onClick={() => navigateAndClose('/egresos')}>Egresos</li>
+        {/* <li onClick={() => navigateAndClose('/egresos')}>Egresos</li> */}
         <li onClick={() => navigateAndClose('/reportes')}>Reportes</li>
         <li onClick={() => navigateAndClose('/about')}>About</li>
         <li onClick={() => navigateAndClose('/perfil')}>Perfil</li>

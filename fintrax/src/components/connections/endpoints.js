@@ -149,7 +149,20 @@ export const endpoints = {
         throw error;
       }
       return data;
-    },     
+    },   
+    // Eliminar un egreso (eliminación real, no soft-delete)
+    deleteEgreso: async ({ transactionId, projectId }) => {
+      const { error } = await supabase.rpc('delete_egreso', {
+        p_transaction_id: transactionId,
+        p_project_id: projectId
+      });
+      if (error) {
+        console.error('Error deleting egreso:', error);
+        throw error;
+      }
+      return true;
+    },
+
     // ============================================================
     // Manejo de Ingresos
     // ============================================================
