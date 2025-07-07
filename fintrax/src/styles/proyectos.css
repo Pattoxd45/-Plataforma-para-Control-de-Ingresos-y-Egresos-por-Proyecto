@@ -4,29 +4,17 @@ html, body {
   display: flex;
   flex-direction: column;
 }
-
 .proyectos-container {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
   padding: 2rem;
-  max-width: 900px;
-  margin: 0 auto;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   color: #2c3e50;
   min-height: 100vh;
 }
 
-.proyectos-container > ul {
-  flex: 1;
-}
-
 .proyectos-container h1 {
-  font-size: 2.5rem;
-  margin-bottom: 1rem;
-  color: #1a1a1a;
-  text-align: center;
+  font-size: 2rem;
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
 }
 
 .error-message {
@@ -34,73 +22,6 @@ html, body {
   text-align: center;
   margin-bottom: 10px;
   font-size: 1rem;
-}
-
-.project-item {
-  background: #f9f9f9;
-  padding: 1.5rem;
-  border-left: 6px solid #3f51b5;
-  border-radius: 8px;
-  margin-bottom: 1.5rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.project-item h2 {
-  font-size: 1.3rem;
-  margin-bottom: 0.5rem;
-  color: #3f51b5;
-}
-
-.project-item p {
-  font-size: 1rem;
-  line-height: 1.5;
-  margin: 0.5rem 0;
-}
-
-/* Responsive para pantallas pequeñas */
-@media (max-width: 768px) {
-  .proyectos-container {
-    padding: 1rem;
-  }
-
-  .proyectos-container h1 {
-    font-size: 2rem;
-  }
-
-  .project-item {
-    padding: 1rem;
-  }
-
-  .project-item h2 {
-    font-size: 1.2rem;
-  }
-
-  .project-item p {
-    font-size: 0.9rem;
-  }
-}
-
-/* Responsive para pantallas muy pequeñas (teléfonos) */
-@media (max-width: 480px) {
-  .proyectos-container {
-    padding: 0.5rem;
-  }
-
-  .proyectos-container h1 {
-    font-size: 1.8rem;
-  }
-
-  .project-item {
-    padding: 0.8rem;
-  }
-
-  .project-item h2 {
-    font-size: 1rem;
-  }
-
-  .project-item p {
-    font-size: 0.8rem;
-  }
 }
 
 footer {
@@ -112,4 +33,192 @@ footer {
   color: #cccccc;
   font-size: 0.875rem;
   margin-top: auto;
+}
+
+/* Formulario modal */
+.form-modal label {
+  display: block;
+  margin-top: 10px;
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+.form-modal input,
+.form-modal textarea,
+.form-modal select {
+  width: 100%;
+  margin-bottom: 8px;
+  padding: 7px 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+.form-modal textarea {
+  min-height: 60px;
+  resize: vertical;
+}
+.form-modal .btn-guardar-proyecto {
+  width: 100%;
+  margin-top: 10px;
+}
+.tabla-proyectos {
+  overflow-x: auto;
+  margin-top: 2rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: white;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.tabla th {
+  background-color: #2c3e50;
+  color: white;
+  padding: 0.75rem;
+  text-align: justify;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.tabla td, .tabla th {
+  text-align: justify !important;
+  vertical-align: middle;
+  padding: 8px;
+}
+
+.tabla tr:nth-child(even) {
+  background-color: #f4f4f4;
+}
+
+.tabla tr:hover {
+  background-color: #ecf0f1;
+}
+
+/* Limitar el ancho de la columna Descripción en la tabla de proyectos */
+.tabla th:nth-child(2),
+.tabla td:nth-child(2) {
+  max-width: 350px;
+  min-width: 180px;
+  width: 25%;
+  word-break: break-word;
+  white-space: pre-line;
+  overflow-wrap: break-word;
+}
+.tabla th:nth-child(5),
+.tabla td:nth-child(5) {
+  min-width: 160px;
+  max-width: 220px;
+  vertical-align: middle;
+}
+.tabla th:nth-child(6),
+.tabla td:nth-child(6) {
+  min-width: 100px;
+}
+
+/* Estilo para el grid de botones de acciones */
+.acciones-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto;
+  gap: 8px 10px;
+  justify-items: stretch;
+  align-items: stretch;
+}
+
+/* Ajuste de tamaño uniforme para todos los botones de acciones */
+.acciones-grid button {
+  width: 100%;
+  min-width: 90px;
+  font-size: 0.95rem;
+  padding: 7px 0;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  margin: 0;
+  box-sizing: border-box;
+  font-weight: 500;
+  transition: background 0.15s;
+}
+
+.btn-editar-proyecto {
+  background: #3f51b5;
+  color: #fff;
+}
+.btn-aumentar-presupuesto {
+  background: #f39c12;
+  color: #fff;
+}
+.btn-agregar-egreso {
+  background: #16a085;
+  color: #fff;
+}
+.btn-finalizar-proyecto {
+  background: #34495e;
+  color: #fff;
+}
+
+/* Mejorar la alineación del botón Detalles */
+.total-gastos-detalle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Valor a la izq, botón a la der */
+  width: 100%;
+  gap: 0;
+}
+/* Botón Detalles más compacto */
+.btn-detalles-gastos {
+  background: #2980b9;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 2px 7px;
+  font-size: 0.88em;
+  cursor: pointer;
+  margin-left: 12px;
+  transition: background 0.15s;
+  white-space: nowrap;
+  min-width: unset;
+  width: auto;
+  line-height: 1.2;
+}
+
+
+/* Responsive para pantallas pequeñas */
+@media (max-width: 768px) {
+  .proyectos-container {
+    padding: 1rem;
+  }
+  .proyectos-container h1 {
+    font-size: 2rem;
+  }
+  .tabla {
+    font-size: 0.9rem;
+    min-width: 500px;
+  }
+}
+
+@media (max-width: 480px) {
+  .proyectos-container {
+    padding: 0.5rem;
+  }
+  .proyectos-container h1 {
+    font-size: 1.8rem;
+  }
+  .tabla {
+    font-size: 0.85rem;
+    min-width: 400px;
+  }
+}
+@media (max-width: 600px) {
+  .acciones-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(4, auto);
+    gap: 8px 0;
+  }
 }

@@ -8,6 +8,7 @@ CREATE TABLE public.projects (
     deadline TIMESTAMPTZ DEFAULT NULL,
     status TEXT DEFAULT 'activo' CHECK (status IN ('activo', 'archivado'))
 );
+ALTER TABLE public.projects ADD COLUMN current_balance NUMERIC DEFAULT 0;
 
 CREATE TABLE public.transactions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -98,3 +99,12 @@ CREATE TABLE public.failed_logins (
     user_agent TEXT NOT NULL,
     attempted_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+CREATE TABLE public.project_budget_increases (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    project_id UUID REFERENCES public.projects(id) ON DELETE CASCADE,
+    amount NUMERIC NOT NULL CHECK (amount > 0),
+    increased_at TIMESTAMPTZ DEFAULT NOW(),
+    user_id UUID REFERENCES auth.users(id)
+);
+

@@ -207,3 +207,236 @@ BEGIN
     WHERE project_id = project_id;
 END;
 $$ LANGUAGE plpgsql;
+
+
+-- Funciones utiles quizas debamos limpiar funciones de arriba
+-- Función para crear un nuevo proyecto
+CREATE OR REPLACE FUNCTION public.create_project(
+    p_user_id UUID,
+    p_name TEXT,
+    p_description TEXT,
+    p_budget NUMERIC,
+    p_deadline TIMESTAMPTZ,
+    p_status TEXT DEFAULT 'activo'
+)
+RETURNS UUID AS $$
+DECLARE
+    new_project_id UUID;
+BEGIN
+    INSERT INTO public.projects (user_id, name, description, budget, deadline, status)
+    VALUES (p_user_id, p_name, p_description, p_budget, p_deadline, p_status)
+    RETURNING id INTO new_project_id;
+
+    RETURN new_project_id;
+END;
+$$ LANGUAGE plpgsql;
+
+
+-- Editar un proyecto
+DROP FUNCTION IF EXISTS public.update_project(UUID, UUID, TEXT, TEXT, NUMERIC, TIMESTAMPTZ, TEXT);
+
+CREATE OR REPLACE FUNCTION public.update_project(
+    p_project_id UUID,
+    p_user_id UUID,
+    p_name TEXT,
+    p_description TEXT,
+    p_budget NUMERIC,
+    p_deadline TIMESTAMPTZ,
+    p_status TEXT
+)
+RETURNS VOID AS $$
+BEGIN
+    UPDATE public.projects
+    SET
+        name = COALESCE(p_name, name),
+        description = COALESCE(p_description, description),
+        budget = COALESCE(p_budget, budget),
+        deadline = COALESCE(p_deadline, deadline),
+        status = COALESCE(p_status, status)
+    WHERE id = p_project_id AND user_id = p_user_id;
+END;
+$$ LANGUAGE plpgsql;
+
+
+-- Función para eliminar (soft-delete) un proyecto seleccionado por el usuario
+CREATE OR REPLACE FUNCTION public.soft_delete_project(
+    p_project_id UUID,
+    p_user_id UUID,
+    p_reason TEXT DEFAULT NULL
+)
+RETURNS VOID AS $$
+BEGIN
+    -- Solo permite eliminar proyectos donde el usuario es propietario
+    UPDATE public.projects
+    SET status = 'archivado'
+    WHERE id = p_project_id
+      AND user_id = p_user_id;
+
+    -- Opcional: también puedes marcar las transacciones asociadas como eliminadas lógicamente
+    UPDATE public.transactions
+    SET deleted_at = NOW(), deletion_reason = COALESCE(p_reason, 'Proyecto archivado')
+    WHERE project_id = p_project_id
+      AND deleted_at IS NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Función para agregar un egreso a un proyecto
+CREATE OR REPLACE FUNCTION public.add_egreso(
+    p_project_id UUID,
+    p_amount NUMERIC,
+    p_date TIMESTAMPTZ,
+    p_description TEXT,
+    p_category TEXT DEFAULT NULL,
+    p_currency TEXT DEFAULT 'CLP',
+    p_payment_method TEXT DEFAULT 'efectivo',
+    p_tags TEXT[] DEFAULT NULL
+)
+RETURNS UUID AS $$
+DECLARE
+    new_transaction_id UUID;
+BEGIN
+    INSERT INTO public.transactions (
+        project_id,
+        amount,
+        date,
+        description,
+        category,
+        type,
+        currency,
+        payment_method,
+        tags
+    )
+    VALUES (
+        p_project_id,
+        p_amount,
+        p_date,
+        p_description,
+        p_category,
+        'egreso',
+        p_currency,
+        p_payment_method,
+        p_tags
+    )
+    RETURNING id INTO new_transaction_id;
+
+    RETURN new_transaction_id;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Función para editar un egreso existente de un proyecto
+CREATE OR REPLACE FUNCTION public.edit_egreso(
+    p_transaction_id UUID,
+    p_project_id UUID,
+    p_amount NUMERIC,
+    p_date TIMESTAMPTZ,
+    p_description TEXT,
+    p_category TEXT DEFAULT NULL,
+    p_currency TEXT DEFAULT 'CLP',
+    p_payment_method TEXT DEFAULT 'efectivo',
+    p_tags TEXT[] DEFAULT NULL
+)
+RETURNS VOID AS $$
+BEGIN
+    UPDATE public.transactions
+    SET
+        amount = COALESCE(p_amount, amount),
+        date = COALESCE(p_date, date),
+        description = COALESCE(p_description, description),
+        category = COALESCE(p_category, category),
+        currency = COALESCE(p_currency, currency),
+        payment_method = COALESCE(p_payment_method, payment_method),
+        tags = COALESCE(p_tags, tags)
+    WHERE id = p_transaction_id
+      AND project_id = p_project_id
+      AND type = 'egreso'
+      AND deleted_at IS NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+
+-- Función para editar un ingreso existente de un proyecto
+CREATE OR REPLACE FUNCTION public.edit_ingreso(
+    p_transaction_id UUID,
+    p_project_id UUID,
+    p_amount NUMERIC,
+    p_date TIMESTAMPTZ,
+    p_description TEXT,
+    p_category TEXT DEFAULT NULL,
+    p_currency TEXT DEFAULT 'CLP',
+    p_payment_method TEXT DEFAULT 'efectivo',
+    p_tags TEXT[] DEFAULT NULL
+)
+RETURNS VOID AS $$
+BEGIN
+    UPDATE public.transactions
+    SET
+        amount = COALESCE(p_amount, amount),
+        date = COALESCE(p_date, date),
+        description = COALESCE(p_description, description),
+        category = COALESCE(p_category, category),
+        currency = COALESCE(p_currency, currency),
+        payment_method = COALESCE(p_payment_method, payment_method),
+        tags = COALESCE(p_tags, tags)
+    WHERE id = p_transaction_id
+      AND project_id = p_project_id
+      AND type = 'ingreso'
+      AND deleted_at IS NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE FUNCTION public.increase_project_budget(
+    p_project_id UUID,
+    p_amount NUMERIC,
+    p_user_id UUID
+)
+RETURNS VOID AS $$
+BEGIN
+    -- Registrar el aumento en la nueva tabla
+    INSERT INTO public.project_budget_increases (project_id, amount, user_id)
+    VALUES (p_project_id, p_amount, p_user_id);
+
+    -- Actualizar el balance actual del proyecto
+    UPDATE public.projects
+    SET current_balance = current_balance + p_amount
+    WHERE id = p_project_id;
+END;
+$$ LANGUAGE plpgsql;
+
+-- función para editar un aumento de presupuesto de un proyecto
+DROP FUNCTION IF EXISTS public.edit_project_budget_increase(UUID, UUID, NUMERIC, UUID);
+
+CREATE OR REPLACE FUNCTION public.edit_project_budget_increase(
+    p_increase_id UUID,
+    p_project_id UUID,
+    p_amount NUMERIC,
+    p_user_id UUID
+)
+RETURNS VOID AS $$
+BEGIN
+    UPDATE public.project_budget_increases
+    SET
+        amount = COALESCE(p_amount, amount)
+    WHERE id = p_increase_id
+      AND project_id = p_project_id
+      AND user_id = p_user_id;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Cambia el nombre temporalmente
+CREATE OR REPLACE FUNCTION public.edit_project_budget_increase_v2(
+    p_increase_id UUID,
+    p_project_id UUID,
+    p_amount NUMERIC,
+    p_user_id UUID
+)
+RETURNS VOID AS $$
+BEGIN
+    UPDATE public.project_budget_increases
+    SET
+        amount = COALESCE(p_amount, amount)
+    WHERE id = p_increase_id
+      AND project_id = p_project_id
+      AND user_id = p_user_id;
+END;
+$$ LANGUAGE plpgsql;

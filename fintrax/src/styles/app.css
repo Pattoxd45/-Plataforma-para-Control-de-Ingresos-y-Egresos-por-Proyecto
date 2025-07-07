@@ -1,0 +1,12 @@
+/* Asegura que ocupe todo el alto de la ventana */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Que el contenido crezca cuando sea necesario */
+.main-content {
+  flex: 1;
+  padding-top: 60px;
+}

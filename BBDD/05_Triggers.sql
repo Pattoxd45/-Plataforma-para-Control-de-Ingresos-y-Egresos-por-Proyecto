@@ -21,13 +21,15 @@ FOR EACH ROW EXECUTE FUNCTION public.log_transaction_changes();
 CREATE OR REPLACE FUNCTION public.update_attachment_count()
 RETURNS TRIGGER AS $$
 BEGIN
-    UPDATE public.projects
-    SET attachment_count = (
-        SELECT COUNT(*)
-        FROM public.attachments
-        WHERE project_id = NEW.project_id
-    )
-    WHERE id = NEW.project_id;
+    IF EXISTS (SELECT 1 FROM public.projects WHERE id = NEW.project_id) THEN
+        UPDATE public.projects
+        SET attachment_count = (
+            SELECT COUNT(*)
+            FROM public.attachments
+            WHERE project_id = NEW.project_id
+        )
+        WHERE id = NEW.project_id;
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -56,12 +58,30 @@ EXECUTE FUNCTION public.update_last_login();
 -- Trigger para validar que las transacciones no excedan el presupuesto del proyecto
 CREATE OR REPLACE FUNCTION public.validate_transaction_budget()
 RETURNS TRIGGER AS $$
+DECLARE
+    total_egresos NUMERIC;
 BEGIN
     IF (NEW.type = 'egreso') THEN
-        IF (
-            (SELECT COALESCE(SUM(amount), 0) FROM public.transactions WHERE project_id = NEW.project_id AND type = 'egreso' AND deleted_at IS NULL) + NEW.amount >
-            (SELECT budget FROM public.projects WHERE id = NEW.project_id)
-        ) THEN
+        IF (TG_OP = 'UPDATE') THEN
+            -- Suma todos los egresos excepto el que se está editando, y suma el nuevo valor
+            SELECT COALESCE(SUM(amount), 0) INTO total_egresos
+            FROM public.transactions
+            WHERE project_id = NEW.project_id
+              AND type = 'egreso'
+              AND deleted_at IS NULL
+              AND id <> NEW.id;
+            total_egresos := total_egresos + NEW.amount;
+        ELSE
+            -- Para INSERT, suma todos los egresos existentes y el nuevo
+            SELECT COALESCE(SUM(amount), 0) INTO total_egresos
+            FROM public.transactions
+            WHERE project_id = NEW.project_id
+              AND type = 'egreso'
+              AND deleted_at IS NULL;
+            total_egresos := total_egresos + NEW.amount;
+        END IF;
+
+        IF (total_egresos > (SELECT budget FROM public.projects WHERE id = NEW.project_id)) THEN
             RAISE EXCEPTION 'El egreso excede el presupuesto del proyecto.';
         END IF;
     END IF;
@@ -87,23 +107,47 @@ CREATE TRIGGER category_changes_trigger
 AFTER UPDATE ON public.categories
 FOR EACH ROW EXECUTE FUNCTION public.log_category_changes();
 
--- Trigger para actualizar el balance del proyecto
+-- Trigger para actualizar el balance del proyecto al insertar o actualizar transacciones
 CREATE OR REPLACE FUNCTION public.update_project_balance()
 RETURNS TRIGGER AS $$
+DECLARE
+    pid UUID;
+    new_balance NUMERIC;
+    project_budget NUMERIC;
 BEGIN
-    UPDATE public.projects
-    SET budget = (
-        SELECT COALESCE(SUM(CASE WHEN type = 'ingreso' THEN amount ELSE -amount END), 0)
-        FROM public.transactions
-        WHERE project_id = NEW.project_id AND deleted_at IS NULL
-    )
-    WHERE id = NEW.project_id;
+    IF TG_OP = 'DELETE' THEN
+        pid := OLD.project_id;
+    ELSE
+        pid := NEW.project_id;
+    END IF;
+
+    -- Obtener el presupuesto del proyecto explícitamente
+    SELECT budget INTO project_budget FROM public.projects WHERE id = pid;
+
+    IF project_budget IS NOT NULL THEN
+        SELECT (
+            project_budget
+            + COALESCE((SELECT SUM(amount) FROM public.project_budget_increases WHERE project_id = pid), 0)
+            + COALESCE((SELECT SUM(amount) FROM public.transactions WHERE project_id = pid AND type = 'ingreso' AND deleted_at IS NULL), 0)
+            - COALESCE((SELECT SUM(amount) FROM public.transactions WHERE project_id = pid AND type = 'egreso' AND deleted_at IS NULL), 0)
+        ) INTO new_balance;
+
+        UPDATE public.projects
+        SET current_balance = new_balance
+        WHERE id = pid AND current_balance IS DISTINCT FROM new_balance;
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS update_project_balance_trigger ON public.transactions;
 CREATE TRIGGER update_project_balance_trigger
 AFTER INSERT OR UPDATE OR DELETE ON public.transactions
+FOR EACH STATEMENT
+EXECUTE FUNCTION public.update_project_balance();
+
+CREATE TRIGGER update_balance_on_budget_increase
+AFTER INSERT OR DELETE ON public.project_budget_increases
 FOR EACH ROW EXECUTE FUNCTION public.update_project_balance();
 
 -- Trigger para validar duplicados en transacciones
