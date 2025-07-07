@@ -78,6 +78,20 @@ function Proyectos() {
   const [egresosDetalleOpen, setEgresosDetalleOpen] = useState(false);
   const [egresosDetalle, setEgresosDetalle] = useState([]);
   const [egresosDetalleProyecto, setEgresosDetalleProyecto] = useState(null);
+  const [editEgresoModalOpen, setEditEgresoModalOpen] = useState(false);
+  const [editEgresoForm, setEditEgresoForm] = useState({
+    egreso_id: '',
+    amount: '',
+    date: '',
+    description: '',
+    category: '',
+    currency: 'CLP',
+    payment_method: 'efectivo',
+    tags: ''
+  });
+  const [budgetIncreasesOpen, setBudgetIncreasesOpen] = useState(false);
+  const [budgetIncreases, setBudgetIncreases] = useState([]);
+  const [budgetIncreasesProject, setBudgetIncreasesProject] = useState(null);
 
   // Obtener los proyectos asociados al usuario usando el endpoint correcto
   const fetchProjects = async (userId) => {
@@ -116,7 +130,6 @@ function Proyectos() {
       setLoading(false);
     }
   };
-
 
   // Abrir modal de edición y cargar datos
   const openEditModal = (project) => {
@@ -163,7 +176,7 @@ function Proyectos() {
     setIncreaseAmount('');
     setIncreaseModalOpen(true);
   };
-
+  // handleChange para el monto a aumentar
   const handleIncreaseBudget = async (e) => {
     e.preventDefault();
     if (!increaseProject || !increaseAmount) return;
@@ -268,6 +281,92 @@ function Proyectos() {
     }
   };
 
+  // Handler para mostrar detalle de egresos
+  const handleVerDetalleEgresos = async (project) => {
+    setLoading(true);
+    setEgresosDetalleProyecto(project);
+    try {
+      const data = await endpoints.projects.getProjectEgresos(project.project_id);
+      setEgresosDetalle(data || []);
+      setEgresosDetalleOpen(true);
+    } catch (error) {
+      setErrorMessage('Error al obtener el detalle de egresos.');
+    }
+    setLoading(false);
+  };
+  // Abrir modal para editar egreso
+  const openEditEgresoModal = (egreso) => {
+    setEditEgresoForm({
+      egreso_id: egreso.egreso_id || egreso.id || egreso.transaction_id,
+      amount: egreso.monto || egreso.amount,
+      date: egreso.fecha ? egreso.fecha.split('T')[0] : (egreso.date ? egreso.date.split('T')[0] : ''),
+      description: egreso.descripcion || egreso.description,
+      category: egreso.category || '',
+      currency: egreso.currency || 'CLP',
+      payment_method: egreso.payment_method || 'efectivo',
+      tags: egreso.tags ? (Array.isArray(egreso.tags) ? egreso.tags.join(',') : egreso.tags) : ''
+    });
+    setEditEgresoModalOpen(true);
+  };
+  // Guardar edición de egreso
+  const handleSubmitEditEgreso = async (e) => {
+    e.preventDefault();
+    if (!egresosDetalleProyecto || !editEgresoForm.egreso_id) return;
+    setLoading(true);
+    setErrorMessage('');
+    try {
+      await endpoints.projects.editEgreso({
+        transactionId: editEgresoForm.egreso_id,
+        projectId: egresosDetalleProyecto.project_id,
+        amount: editEgresoForm.amount,
+        date: editEgresoForm.date,
+        description: editEgresoForm.description,
+        category: editEgresoForm.category,
+        currency: editEgresoForm.currency,
+        payment_method: editEgresoForm.payment_method,
+        tags: editEgresoForm.tags ? editEgresoForm.tags.split(',').map(tag => tag.trim()) : null
+      });
+      setEditEgresoModalOpen(false);
+      // Refrescar detalle de egresos
+      await handleVerDetalleEgresos(egresosDetalleProyecto);
+      await fetchProjects(user.id);
+    } catch (error) {
+      setErrorMessage('Error al editar el egreso.');
+    }
+    setLoading(false);
+  };
+  // Eliminar egreso
+const handleDeleteEgreso = async (egreso) => {
+  if (!window.confirm('¿Seguro que deseas eliminar este egreso?')) return;
+  setLoading(true);
+  setErrorMessage('');
+  try {
+    await endpoints.projects.deleteEgreso({
+      transactionId: egreso.egreso_id || egreso.id || egreso.transaction_id,
+      projectId: egresosDetalleProyecto.project_id
+    });
+    await handleVerDetalleEgresos(egresosDetalleProyecto);
+    await fetchProjects(user.id);
+  } catch (error) {
+    setErrorMessage('Error al eliminar el egreso.');
+  }
+  setLoading(false);
+};
+
+  // Handler para mostrar detalle de aumentos de presupuesto
+  const handleVerDetalleAumentos = async (project) => {
+    setLoading(true);
+    setBudgetIncreasesProject(project);
+    try {
+      const data = await endpoints.projects.getProjectBudgetIncreases(project.project_id);
+      setBudgetIncreases(data || []);
+      setBudgetIncreasesOpen(true);
+    } catch (error) {
+      setErrorMessage('Error al obtener los aumentos de presupuesto.');
+    }
+    setLoading(false);
+  };
+
   useEffect(() => {
     if (user && user.id) {
       fetchProjects(user.id);
@@ -298,60 +397,84 @@ function Proyectos() {
       {loading && <p>Cargando proyectos...</p>}
       {errorMessage && <p className="error-message">{errorMessage}</p>}
       {!loading && projects.length === 0 && <p>No hay proyectos asociados.</p>}
-{!loading && projects.length > 0 && (
-  <div className="tabla-proyectos">
-    <table className="tabla">
-      <thead>
-        <tr>
-          <th>Nombre</th>
-          <th>Descripción</th>
-          <th>Fecha de finalización</th>
-          <th>Presupuesto</th>
-          <th>Total Gastos</th>
-          <th>Balance</th> {/* Nueva columna */}
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        {projects.map((project) => (
-          <tr key={project.project_id}>
-            <td>{project.project_name}</td>
-            <td>{project.project_description}</td>
-            <td>{formatFecha(project.deadline)}</td>
-            <td>{project.budget}</td>
-            <td>{project.total_gastos}</td>
-            <td>{project.balance}</td> {/* Nuevo dato */}
-            <td>
-              <div className="acciones-grid">
-                <button onClick={() => openEditModal(project)} className="btn-editar-proyecto">
-                  Editar
-                </button>
-                <button
-                  onClick={() => openIncreaseModal(project)}
-                  className="btn-aumentar-presupuesto"
-                >
-                  Aumentar Presupuesto
-                </button>
-                <button
-                  onClick={() => openEgresoModal(project)}
-                  className="btn-agregar-egreso"
-                >
-                  Agregar Gastos
-                </button>
-                <button
-                  onClick={() => handleFinalizarProyecto(project)}
-                  className="btn-finalizar-proyecto"
-                >
-                  Finalizar Proyecto
-                </button>
-              </div>
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  </div>
-)}
+     {!loading && projects.length > 0 && (
+        <div className="tabla-proyectos">
+          <table className="tabla">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Fecha de finalización</th>
+                <th>Presupuesto</th>
+                <th>Total Gastos</th>
+                <th>Aumentos Presupuesto</th>
+                <th>Balance</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {projects.map((project) => (
+                <tr key={project.project_id}>
+                  <td>{project.project_name}</td>
+                  <td>{project.project_description}</td>
+                  <td>{formatFecha(project.deadline)}</td>
+                  <td>{project.budget}</td>
+                  <td>
+                    <div className="total-gastos-detalle">
+                      <span>{project.total_gastos}</span>
+                      <button
+                        className="btn-detalles-gastos"
+                        onClick={() => handleVerDetalleEgresos(project)}
+                        title="Ver detalle de egresos"
+                      >
+                        Detalles
+                      </button>
+                    </div>
+                  </td>
+                  <td>
+                    <div className="total-gastos-detalle">
+                      <span>{project.total_aumentos_presupuesto}</span>
+                      <button
+                        className="btn-detalles-gastos"
+                        onClick={() => handleVerDetalleAumentos(project)}
+                        title="Ver detalle de aumentos"
+                      >
+                        Detalles
+                      </button>
+                    </div>
+                  </td>
+                  <td>{project.balance}</td>
+                  <td>
+                    <div className="acciones-grid">
+                      <button onClick={() => openEditModal(project)} className="btn-editar-proyecto">
+                        Editar
+                      </button>
+                      <button
+                        onClick={() => openIncreaseModal(project)}
+                        className="btn-aumentar-presupuesto"
+                      >
+                        Aumentar Presupuesto
+                      </button>
+                      <button
+                        onClick={() => openEgresoModal(project)}
+                        className="btn-agregar-egreso"
+                      >
+                        Agregar Gastos
+                      </button>
+                      <button
+                        onClick={() => handleFinalizarProyecto(project)}
+                        className="btn-finalizar-proyecto"
+                      >
+                        Finalizar Proyecto
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {/* Modal para crear proyecto */}
       <CustomModal open={modalOpen} onClose={() => setModalOpen(false)} title="Crear Proyecto">
@@ -502,6 +625,199 @@ function Proyectos() {
             Agregar Gasto
           </button>
         </form>
+      </CustomModal>
+      {/* Modal para detalle de egresos */}
+      <CustomModal
+        open={egresosDetalleOpen}
+        onClose={() => setEgresosDetalleOpen(false)}
+        title={
+          egresosDetalleProyecto
+            ? `Egresos de "${egresosDetalleProyecto.project_name}"`
+            : 'Detalle de Egresos'
+        }
+      >
+        <div style={{ maxHeight: 350, overflowY: 'auto' }}>
+          {egresosDetalle.length === 0 ? (
+            <p>No hay egresos registrados para este proyecto.</p>
+          ) : (
+            <table style={{ width: '100%', fontSize: 14 }}>
+              <thead>
+                <tr>
+                  <th>Monto</th>
+                  <th>Fecha</th>
+                  <th>Descripción</th>
+                  <th>Categoría</th>
+                  <th>Responsable</th>
+                </tr>
+              </thead>
+              <tbody>
+                {egresosDetalle.map(e => (
+                  <tr key={e.egreso_id || e.id || e.transaction_id}>
+                    <td>{e.monto || e.amount}</td>
+                    <td>{e.fecha ? e.fecha.split('T')[0] : (e.date ? e.date.split('T')[0] : '')}</td>
+                    <td>{e.descripcion || e.description}</td>
+                    <td>{e.category}</td>
+                    <td>{e.responsable || e.user_name || ''}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </CustomModal>
+      {/* Modal para detalle de egresos */}
+      <CustomModal
+        open={egresosDetalleOpen}
+        onClose={() => setEgresosDetalleOpen(false)}
+        title={
+          egresosDetalleProyecto
+            ? `Gastos de "${egresosDetalleProyecto.project_name}"`
+            : 'Detalle de Gastos'
+        }
+      >
+        <div style={{ maxHeight: 350, overflowY: 'auto' }}>
+          {egresosDetalle.length === 0 ? (
+            <p>No hay egresos registrados para este proyecto.</p>
+          ) : (
+            <table style={{ width: '100%', fontSize: 14 }}>
+              <thead>
+                <tr>
+                  <th>Monto</th>
+                  <th>Fecha</th>
+                  <th>Descripción</th>
+                  <th>Categoría</th>
+                  <th>Responsable</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {egresosDetalle.map(e => (
+                  <tr key={e.egreso_id || e.id || e.transaction_id}>
+                    <td>{e.monto || e.amount}</td>
+                    <td>{e.fecha ? e.fecha.split('T')[0] : (e.date ? e.date.split('T')[0] : '')}</td>
+                    <td>{e.descripcion || e.description}</td>
+                    <td>{e.category}</td>
+                    <td>{e.responsable || e.user_name || ''}</td>
+                    <td>
+                      <button
+                        style={{ fontSize: 12, padding: '4px 8px', marginRight: 4 }}
+                        onClick={() => openEditEgresoModal(e)}
+                      >
+                        Editar
+                      </button>
+                      <button
+                        style={{ fontSize: 12, padding: '4px 8px', background: '#e74c3c', color: '#fff' }}
+                        onClick={() => handleDeleteEgreso(e)}
+                      >
+                        Eliminar
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </CustomModal>
+
+      {/* Modal para editar egreso */}
+      <CustomModal open={editEgresoModalOpen} onClose={() => setEditEgresoModalOpen(false)} title="Editar Egreso">
+        <form className="form-modal" onSubmit={handleSubmitEditEgreso}>
+          <label>Monto:</label>
+          <input
+            name="amount"
+            type="number"
+            value={editEgresoForm.amount}
+            onChange={e => setEditEgresoForm({ ...editEgresoForm, amount: e.target.value })}
+            required
+          />
+          <label>Fecha:</label>
+          <input
+            name="date"
+            type="date"
+            value={editEgresoForm.date}
+            onChange={e => setEditEgresoForm({ ...editEgresoForm, date: e.target.value })}
+            required
+          />
+          <label>Descripción:</label>
+          <textarea
+            name="description"
+            value={editEgresoForm.description}
+            onChange={e => setEditEgresoForm({ ...editEgresoForm, description: e.target.value })}
+            required
+          />
+          <label>Categoría:</label>
+          <input
+            name="category"
+            value={editEgresoForm.category}
+            onChange={e => setEditEgresoForm({ ...editEgresoForm, category: e.target.value })}
+          />
+          <label>Moneda:</label>
+          <select
+            name="currency"
+            value={editEgresoForm.currency}
+            onChange={e => setEditEgresoForm({ ...editEgresoForm, currency: e.target.value })}
+          >
+            <option value="CLP">CLP</option>
+            <option value="USD">USD</option>
+            <option value="EUR">EUR</option>
+            <option value="BTC">BTC</option>
+          </select>
+          <label>Método de pago:</label>
+          <select
+            name="payment_method"
+            value={editEgresoForm.payment_method}
+            onChange={e => setEditEgresoForm({ ...editEgresoForm, payment_method: e.target.value })}
+          >
+            <option value="efectivo">Efectivo</option>
+            <option value="tarjeta">Tarjeta</option>
+            <option value="transferencia">Transferencia</option>
+            <option value="otros">Otros</option>
+          </select>
+          <label>Tags (separados por coma):</label>
+          <input
+            name="tags"
+            value={editEgresoForm.tags}
+            onChange={e => setEditEgresoForm({ ...editEgresoForm, tags: e.target.value })}
+          />
+          <button type="submit" className="btn-guardar-proyecto" style={{ background: '#34495e', color: '#fff', marginTop: 12 }}>
+            Guardar Cambios
+          </button>
+        </form>
+      </CustomModal>
+
+      {/* Modal para detalle de aumentos de presupuesto */}
+      <CustomModal
+        open={budgetIncreasesOpen}
+        onClose={() => setBudgetIncreasesOpen(false)}
+        title={
+          budgetIncreasesProject
+            ? `Aumentos de presupuesto de "${budgetIncreasesProject.project_name}"`
+            : 'Detalle de Aumentos de Presupuesto'
+        }
+      >
+        <div style={{ maxHeight: 350, overflowY: 'auto', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+          {budgetIncreases.length === 0 ? (
+            <p>No hay aumentos registrados para este proyecto.</p>
+          ) : (
+            <table className="tabla" style={{ width: 'auto', minWidth: 320, margin: '0 auto' }}>
+              <thead>
+                <tr>
+                  <th style={{ textAlign: 'center' }}>Monto</th>
+                  <th style={{ textAlign: 'center' }}>Fecha</th>
+                </tr>
+              </thead>
+              <tbody>
+                {budgetIncreases.map(inc => (
+                  <tr key={inc.increase_id}>
+                    <td style={{ textAlign: 'center' }}>{inc.amount}</td>
+                    <td style={{ textAlign: 'center' }}>{inc.created_at ? inc.created_at.split('T')[0] : ''}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
       </CustomModal>
 
       {/* CustomAlert para finalizar proyecto */}

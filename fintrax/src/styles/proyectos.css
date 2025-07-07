@@ -110,10 +110,15 @@ footer {
   white-space: pre-line;
   overflow-wrap: break-word;
 }
+.tabla th:nth-child(5),
+.tabla td:nth-child(5) {
+  min-width: 160px;
+  max-width: 220px;
+  vertical-align: middle;
+}
 .tabla th:nth-child(6),
 .tabla td:nth-child(6) {
   min-width: 100px;
-  text-align: right;
 }
 
 /* Estilo para el grid de botones de acciones */
@@ -157,6 +162,32 @@ footer {
   background: #34495e;
   color: #fff;
 }
+
+/* Mejorar la alineación del botón Detalles */
+.total-gastos-detalle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Valor a la izq, botón a la der */
+  width: 100%;
+  gap: 0;
+}
+/* Botón Detalles más compacto */
+.btn-detalles-gastos {
+  background: #2980b9;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 2px 7px;
+  font-size: 0.88em;
+  cursor: pointer;
+  margin-left: 12px;
+  transition: background 0.15s;
+  white-space: nowrap;
+  min-width: unset;
+  width: auto;
+  line-height: 1.2;
+}
+
 
 /* Responsive para pantallas pequeñas */
 @media (max-width: 768px) {
